@@ -11,7 +11,7 @@ import {MdOutlineModeEdit} from 'react-icons/md'
 import {AiTwotoneHeart} from 'react-icons/ai'
 
 // import required modules
-import { Pagination } from "swiper";
+import { Pagination } from "swiper/modules";
 const PopularCategory = () => {
     const {items,like,checkId,showEditForm,openInfoModal,updateActive} = useContext(GlobalContext)
   return (

@@ -8,7 +8,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import PopularCategory from './PopularCategory';
 // import "./styles.css";
-import { Pagination } from "swiper";
+import { Pagination } from "swiper/modules";
 const Items = () => {
   const {deleteItem,items} = useContext(GlobalContext)
   return (

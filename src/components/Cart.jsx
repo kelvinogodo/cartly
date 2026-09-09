@@ -5,7 +5,7 @@ import {motion,AnimatePresence} from 'framer-motion'
 import "swiper/css";
 import "swiper/css/pagination";
 // import "./styles.css";
-import { Pagination } from "swiper";
+import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import {FaShopify} from 'react-icons/fa'
 import { useContext } from 'react';

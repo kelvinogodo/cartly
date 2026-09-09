@@ -1,70 +1,80 @@
-# Getting Started with Create React App
+# Shopper
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A responsive e-commerce storefront UI built with React — browse products by category, live-search the catalog, add items to a running cart with total pricing, and manage listings through an animated add/edit product form, all powered by the Context API (no backend required).
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+- **Product catalog** — grid of items (clothing, shoes, women's wear, handbags) with image, name, price, size, color, and country of origin.
+- **Category filtering** — a sticky category bar (`all`, `men`, `shoe`, `women`, `handbag`) to narrow the catalog instantly.
+- **Live search** — filter products by name as you type.
+- **Like/favorite toggle** — mark items on the fly.
+- **Item detail modal** — click an item for a closer look at its details.
+- **Shopping cart** — an animated, swipeable cart drawer that lists added items and keeps a running total; items can be removed individually.
+- **Add item form** — an animated modal for appending new products to the catalog (name, price, size, color, category, origin, image).
+- **Edit item form** — scaffolded for updating existing catalog entries.
+- Global state managed with React's **Context API** — the entire catalog and cart live in memory, no server required.
 
-### `npm start`
+## Tech stack
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- [React 18](https://react.dev/) (bootstrapped with Create React App) + [React Router](https://reactrouter.com/) for routing
+- [Framer Motion](https://www.framer.com/motion/) and [AOS](https://michalsnik.github.io/aos/) for animations
+- [Swiper](https://swiperjs.com/) for the cart carousel
+- [React Icons](https://react-icons.github.io/react-icons/) for iconography
+- [SweetAlert2](https://sweetalert2.github.io/) for alerts
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Getting started
 
-### `npm test`
+```bash
+npm install
+npm start
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser. The page reloads automatically as you edit source files.
 
-### `npm run build`
+Other available scripts:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- `npm test` — run the test runner in watch mode
+- `npm run build` — build a production bundle to `build/`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Project structure
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```
+src/
+  Context.jsx        # global state: catalog, cart, filters, search, modals
+  App.js             # routes (Home, Login)
+  pages/
+    Home.jsx          # main storefront layout
+    Login.jsx          # placeholder, not yet implemented
+    Admin.jsx          # placeholder, not yet implemented
+  components/
+    Header.jsx, StickyHeader.jsx   # nav, search entry, cart/add triggers
+    Items.jsx, Item.jsx            # catalog grid and card
+    Categories.jsx, PopularCategory.jsx
+    SearchItems.jsx
+    Cart.jsx
+    AddForm.jsx, EditForm.jsx
+    MoreInfoModal.jsx
+    Contact.jsx, Footer.jsx
+```
 
-### `npm run eject`
+## Known limitations
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+This is a front-end concept/demo, not a production-ready store:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- All product data is hardcoded in [`Context.jsx`](src/Context.jsx) — there is no real backend or database, and the `json-server` dependency is currently unused.
+- `Login` and `Admin` pages are unstyled placeholders.
+- No persistence — cart and catalog edits reset on page reload.
+- No checkout/payment integration.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Roadmap
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Future iterations are planned to rebuild this into a more complete application, potentially including:
 
-## Learn More
+- A real backend/API and persistent database for products, users, and orders
+- Working authentication (`Login`) and a functional `Admin` dashboard for product management
+- Checkout flow with order history
+- Image uploads instead of manual filename entry
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## License
 
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Personal/portfolio project.

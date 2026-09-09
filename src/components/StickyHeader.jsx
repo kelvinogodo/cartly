@@ -5,7 +5,7 @@ import "swiper/css";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
 // import required modules
-import { Pagination } from "swiper";
+import { Pagination } from "swiper/modules";
 const StickyHeader = ({categories,text}) => {
     
     const {fallBack,filter} = useContext(GlobalContext)
@@ -23,7 +23,7 @@ const StickyHeader = ({categories,text}) => {
           >
         <h5 className='sort-header'>{text}</h5>
         {categories !== null && categories.map(category =>(
-            <swiperSlide key={category.id} className='come'>
+            <SwiperSlide key={category.id} className='come'>
              <button className="category" onClick={()=>{
                 switch (category.title) {
                     case 'all':
@@ -45,7 +45,7 @@ const StickyHeader = ({categories,text}) => {
                         break;
                 }
                 }} >{category.title}</button>
-             </swiperSlide>
+             </SwiperSlide>
         ))}
         </Swiper>
     </div>
