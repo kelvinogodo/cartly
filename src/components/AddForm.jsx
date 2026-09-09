@@ -34,7 +34,7 @@ const AddForm = () => {
          <motion.form animate={{marginTop:0}} initial={{marginTop:'-2000px'}} className='add-form' onSubmit={onSubmit}>
              <div className='form-header'>
                  <small className='logo'>
-                    shopper <FaShopify />
+                    cartly <FaShopify />
                  </small>
              </div>
         <div className="addForm-body">

@@ -13,7 +13,7 @@ const Header = () => {
    <header>
        <small className="logo">
          <FaShopify className='logo'/>
-         shopper
+         cartly
        </small>
        <SearchItems onSearch={onSearch}/>
        <div className="header-btn-container">

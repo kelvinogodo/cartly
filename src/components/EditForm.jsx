@@ -35,7 +35,7 @@ const EditForm = () => {
     <form className='add-form' onSubmit={editData}>
         <div className='form-header'>
             <small className='logo'>
-            shopper <FaShopify />
+            cartly <FaShopify />
             </small>
         </div>
         <div className="addForm-body">

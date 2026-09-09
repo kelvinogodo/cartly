@@ -19,7 +19,7 @@ const Cart = () => {
         <div className="cart-list">
         <div className='form-header'>
                  <small className='logo'>
-                    shopper <FaShopify />
+                    cartly <FaShopify />
                  </small>
         </div>
         <small className='prize-badge'>total = {`$${total}`}</small>

@@ -39,7 +39,7 @@ const Items = () => {
           </div>
           <div className="land-text">
               <h5>
-              get most comfortable shoes at shopper
+              get most comfortable shoes at cartly
               </h5>
               <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui consequatur sunt obcaecati autem pariatur soluta doloribus recusandae veniam harum assumenda?</p>
               <button>explore</button>
@@ -63,7 +63,7 @@ const Items = () => {
             </div>
             <div className="land-text">
                 <h5>
-                get most comfortable shoes at shopper
+                get most comfortable shoes at cartly
                 </h5>
                 <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui consequatur sunt obcaecati autem pariatur soluta doloribus recusandae veniam harum assumenda?</p>
                 <button>explore</button>

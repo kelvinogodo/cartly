@@ -1,6 +1,6 @@
 {
-  "short_name": "Shopper",
-  "name": "Shopper - React Ecommerce Storefront",
+  "short_name": "Cartly",
+  "name": "Cartly - React Ecommerce Storefront",
   "icons": [
     {
       "src": "favicon.ico",
