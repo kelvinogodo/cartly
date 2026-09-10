@@ -5,6 +5,7 @@
   "type": "module",
   "dependencies": {
     "@supabase/supabase-js": "^2.109.0",
+    "@tanstack/react-query": "^5.102.8",
     "framer-motion": "^7.2.0",
     "react": "^18.1.0",
     "react-dom": "^18.0.0",
