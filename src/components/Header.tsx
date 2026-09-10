@@ -1,28 +1,28 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {BsFillCartCheckFill} from 'react-icons/bs'
-import {GrAdd} from 'react-icons/gr'
 import {FaShopify} from 'react-icons/fa'
 import SearchItems from './SearchItems'
-import { useGlobalContext } from '../Context'
+import { useUIContext } from '../context/UIContext'
 import { useAuth } from '../context/AuthContext'
 import {FaUserCircle} from 'react-icons/fa'
 const Header = () => {
-  const {carts,showForm,toggleCartDisplay} = useGlobalContext()
+  const {cartItems,openCart} = useUIContext()
   const {user,profile,isAdmin,signOut} = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   return (
    <header>
-       <small className="logo">
-         <FaShopify className='logo'/>
-         cartly
-       </small>
+       <Link to="/" style={{textDecoration: 'none'}}>
+         <small className="logo">
+           <FaShopify className='logo'/>
+           cartly
+         </small>
+       </Link>
        <SearchItems/>
        <div className="header-btn-container">
-         {carts.length !== 0 && <small className="item-number">
-           {carts.length}
+         {cartItems.length !== 0 && <small className="item-number">
+           {cartItems.length}
          </small>}
-       {isAdmin && <GrAdd onClick={showForm} className='add-btn icon'/>}
        <div className="user-menu">
          {user ? (
            <>
@@ -39,7 +39,7 @@ const Header = () => {
            <Link to="/login"><FaUserCircle className='user-icon icon'/></Link>
          )}
        </div>
-       <BsFillCartCheckFill className='head-cart icon' onClick={toggleCartDisplay}/>
+       <BsFillCartCheckFill className='head-cart icon' onClick={openCart}/>
        </div>
    </header>
   )

@@ -1,36 +1,19 @@
 import {motion,AnimatePresence} from 'framer-motion'
-import { useGlobalContext } from '../Context'
+import { useUIContext } from '../context/UIContext'
+import { useProducts } from '../hooks/useProducts'
 import Item from './Item'
 import StickyHeader from './StickyHeader'
 const Categories = () => {
-    const {filtered,deleteItem} = useGlobalContext()
+    const {categoryFilter,searchTerm} = useUIContext()
+    const {data: products, isLoading, error} = useProducts({categoryId: categoryFilter, search: searchTerm})
   return (
     <section className='category-section'>
-      <StickyHeader categories={[
-        {
-          id:1,
-          title:'all'
-        },
-        {
-          id:2,
-          title:'men'
-        },
-        {
-          id:3,
-          title:'shoe'
-        },
-        {
-          id:4,
-          title:'women'
-        },
-        {
-          id:5,
-          title:'handbag'
-        }
-        ] } text={'sort by category'}/>
+      <StickyHeader text={'sort by category'}/>
       <motion.div layout animate={{opacity:1}} initial={{opacity:0}} exit={{opacity:0}}  className='items-container category-container'>
+        {isLoading && <p>loading products...</p>}
+        {error && <p>could not load products.</p>}
         <AnimatePresence >
-          {filtered.map((item: any) =>(<Item key={item.id} item= {item} onDelete={()=>deleteItem(item.id)} />))  }
+          {products?.map((item) =>(<Item key={item.id} item= {item} />))  }
         </AnimatePresence>
       </motion.div>
     </section>

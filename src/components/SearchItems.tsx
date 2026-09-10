@@ -1,12 +1,11 @@
-import { useGlobalContext } from '../Context'
+import { useUIContext } from '../context/UIContext'
 const SearchItems = () => {
-  const {onSearch} = useGlobalContext()
+  const {setSearchTerm} = useUIContext()
   return (
     <form className='search-input-container'>
         <input type="search" name="" id="" placeholder='enter name of item to search' className='search-input' onChange={(e)=>{
           e.preventDefault()
-          const letter = e.target.value;
-          onSearch(letter)}}/>
+          setSearchTerm(e.target.value)}}/>
     </form>
   )
 }

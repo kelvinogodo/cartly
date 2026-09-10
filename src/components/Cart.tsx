@@ -7,20 +7,24 @@ import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import {FaShopify} from 'react-icons/fa'
-import { useGlobalContext } from '../Context';
+import { useUIContext } from '../context/UIContext';
+import { getProductImageUrl } from '../lib/images';
 const Cart = () => {
-  const {carts,total,closeDisplayCart,deleteCartItem} = useGlobalContext()
+  const {cartItems,cartTotal,closeCart,removeFromCart} = useUIContext()
   return (
     <AnimatePresence>
     <motion.div animate={{opacity:1}} initial={{opacity:0}} exit={{opacity:0}} className='cart'>
-        <AiOutlineClose className="close" onClick={closeDisplayCart}/>
+        <AiOutlineClose className="close" onClick={closeCart}/>
         <div className="cart-list">
         <div className='form-header'>
                  <small className='logo'>
                     cartly <FaShopify />
                  </small>
         </div>
-        <small className='prize-badge'>total = {`$${total}`}</small>
+        <small className='prize-badge'>total = {`$${cartTotal}`}</small>
+        {cartItems.length === 0 ? (
+          <p>your cart is empty</p>
+        ) : (
         <Swiper
         pagination={{
           dynamicBullets: true,
@@ -28,21 +32,22 @@ const Cart = () => {
         modules={[Pagination]}
         className="mySwiper swiper-container"
       >
-        {carts.map((cart: any) =>(
-        <SwiperSlide key={cart.id} className='cart-slide'>
-        <AiOutlineClose className="delete-item-btn"onClick={()=>deleteCartItem(cart.id,cart.prize)} />
-            <img src={`images/${cart.image}`} alt="" className='item-pic' />
+        {cartItems.map((cartItem) =>(
+        <SwiperSlide key={cartItem.productId} className='cart-slide'>
+        <AiOutlineClose className="delete-item-btn"onClick={()=>removeFromCart(cartItem.productId)} />
+            <img src={getProductImageUrl(cartItem.product.image_path)} alt={cartItem.product.name} className='item-pic' />
             <div className="item-info">
-                      <p>available colors: <small><b>{cart.color}</b></small></p>
-                      <p>size: <small><b>{cart.size}</b></small></p>
-                      <p>made in: <small><b>{cart.madeIn}</b></small></p>
-                      <p>category: <small><b>{cart.category}</b></small></p>
-                      <p>prize: <small><b>${cart.prize}</b></small></p>
+                      <p>available colors: <small><b>{cartItem.product.color}</b></small></p>
+                      <p>size: <small><b>{cartItem.product.size}</b></small></p>
+                      <p>made in: <small><b>{cartItem.product.made_in}</b></small></p>
+                      <p>quantity: <small><b>{cartItem.quantity}</b></small></p>
+                      <p>price: <small><b>${cartItem.product.price}</b></small></p>
                   </div>
         </SwiperSlide>
         ))}
       </Swiper>
-      <button className='check-out-btn' type='submit'>check out</button>
+      )}
+      <button className='check-out-btn' type='submit' disabled={cartItems.length === 0}>check out</button>
         </div>
     </motion.div>
     </AnimatePresence>

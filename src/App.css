@@ -571,6 +571,10 @@ legend{
 .category-section{
   position: relative;
 }
+.category.active{
+  background-color: rgb(59, 161, 251);
+  color: white;
+}
 .sort-header{
   text-align: left;
   padding-left: 10px;
