@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabaseClient';
+import { clearGuestCartLines, readGuestCartLines } from '../lib/cart';
 import type { Profile } from '../types/domain';
 
 interface AuthContextValue {
@@ -33,10 +35,46 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
   return data;
 }
 
+// Folds a signed-out visitor's localStorage cart into their real cart_items
+// rows the moment they sign in, summing quantity where a row already exists.
+async function mergeGuestCartIntoServerCart(userId: string): Promise<void> {
+  const lines = readGuestCartLines();
+  if (lines.length === 0) return;
+
+  for (const line of lines) {
+    const { data: existing, error: selectError } = await supabase
+      .from('cart_items')
+      .select('quantity')
+      .eq('user_id', userId)
+      .eq('product_id', line.productId)
+      .maybeSingle();
+    if (selectError) {
+      console.error('Failed to check existing cart item during guest-cart merge:', selectError.message);
+      continue;
+    }
+    if (existing) {
+      const { error } = await supabase
+        .from('cart_items')
+        .update({ quantity: existing.quantity + line.quantity })
+        .eq('user_id', userId)
+        .eq('product_id', line.productId);
+      if (error) console.error('Failed to merge cart item quantity:', error.message);
+    } else {
+      const { error } = await supabase
+        .from('cart_items')
+        .insert({ user_id: userId, product_id: line.productId, quantity: line.quantity });
+      if (error) console.error('Failed to insert merged cart item:', error.message);
+    }
+  }
+
+  clearGuestCartLines();
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let isMounted = true;
@@ -50,17 +88,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data: subscription } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: subscription } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (!isMounted) return;
       setSession(session);
       setProfile(session?.user ? await fetchProfile(session.user.id) : null);
+
+      if (event === 'SIGNED_IN' && session?.user) {
+        await mergeGuestCartIntoServerCart(session.user.id);
+        queryClient.invalidateQueries({ queryKey: ['cart', session.user.id] });
+      }
     });
 
     return () => {
       isMounted = false;
       subscription.subscription.unsubscribe();
     };
-  }, []);
+  }, [queryClient]);
 
   const signIn: AuthContextValue['signIn'] = async (email, password) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password });

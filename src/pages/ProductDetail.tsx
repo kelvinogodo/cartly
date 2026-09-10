@@ -4,10 +4,9 @@ import { MdOutlineAdd } from 'react-icons/md'
 import { BsFillArrowLeftCircleFill } from 'react-icons/bs'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
-import Cart from '../components/Cart'
 import { useProduct } from '../hooks/useProduct'
 import { useWishlist } from '../hooks/useWishlist'
-import { useUIContext } from '../context/UIContext'
+import { useCart } from '../hooks/useCart'
 import { useAuth } from '../context/AuthContext'
 import { getProductImageUrl } from '../lib/images'
 
@@ -15,13 +14,12 @@ const ProductDetail = () => {
   const { slug } = useParams()
   const { data: product, isLoading, error } = useProduct(slug)
   const { likedIds, toggle } = useWishlist()
-  const { addToCart, isCartOpen } = useUIContext()
+  const { addItem } = useCart()
   const { user } = useAuth()
 
   return (
     <div>
       <Header />
-      {isCartOpen && <Cart />}
       <section className='more-info-card' style={{position: 'relative'}}>
         {isLoading && <p>loading...</p>}
         {error && <p>product not found.</p>}
@@ -45,7 +43,7 @@ const ProductDetail = () => {
                 <p>size: <small><b>{product.size}</b></small></p>
                 <p>made in: <small><b>{product.made_in}</b></small></p>
               </div>
-              <MdOutlineAdd className='add-item-btn' onClick={() => addToCart(product)} />
+              <MdOutlineAdd className='add-item-btn' onClick={() => addItem(product.id)} />
             </div>
           </>
         )}

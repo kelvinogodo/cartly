@@ -3,11 +3,11 @@ import { Link } from 'react-router-dom'
 import {BsFillCartCheckFill} from 'react-icons/bs'
 import {FaShopify} from 'react-icons/fa'
 import SearchItems from './SearchItems'
-import { useUIContext } from '../context/UIContext'
+import { useCart } from '../hooks/useCart'
 import { useAuth } from '../context/AuthContext'
 import {FaUserCircle} from 'react-icons/fa'
 const Header = () => {
-  const {cartItems,openCart} = useUIContext()
+  const {items: cartItems} = useCart()
   const {user,profile,isAdmin,signOut} = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   return (
@@ -39,7 +39,7 @@ const Header = () => {
            <Link to="/login"><FaUserCircle className='user-icon icon'/></Link>
          )}
        </div>
-       <BsFillCartCheckFill className='head-cart icon' onClick={openCart}/>
+       <Link to="/cart"><BsFillCartCheckFill className='head-cart icon'/></Link>
        </div>
    </header>
   )

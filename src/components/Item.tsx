@@ -3,14 +3,14 @@ import {AiTwotoneHeart} from 'react-icons/ai'
 import {motion} from 'framer-motion'
 import {MdOutlineAdd} from 'react-icons/md'
 import { useAuth } from '../context/AuthContext'
-import { useUIContext } from '../context/UIContext'
+import { useCart } from '../hooks/useCart'
 import { useWishlist } from '../hooks/useWishlist'
 import { getProductImageUrl } from '../lib/images'
 import type { Product } from '../types/domain'
 
 const Item = ({item}: {item: Product}) => {
   const { user } = useAuth()
-  const { addToCart } = useUIContext()
+  const { addItem } = useCart()
   const { likedIds, toggle } = useWishlist()
   const navigate = useNavigate()
   const liked = likedIds.has(item.id)
@@ -33,7 +33,7 @@ const Item = ({item}: {item: Product}) => {
             <p>{item.name}</p>
             <small className='prize'> {`price: $${item.price}`}</small>
         </div>
-        <MdOutlineAdd className='add-item-btn' onClick={()=> addToCart(item)} />
+        <MdOutlineAdd className='add-item-btn' onClick={()=> addItem(item.id)} />
     </motion.div>
   )
 }

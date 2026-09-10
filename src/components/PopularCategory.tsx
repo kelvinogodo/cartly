@@ -9,7 +9,7 @@ import {AiTwotoneHeart} from 'react-icons/ai'
 // import required modules
 import { Pagination } from "swiper/modules";
 import { useAuth } from '../context/AuthContext'
-import { useUIContext } from '../context/UIContext'
+import { useCart } from '../hooks/useCart'
 import { useFeaturedProducts } from '../hooks/useFeaturedProducts'
 import { useWishlist } from '../hooks/useWishlist'
 import { getProductImageUrl } from '../lib/images'
@@ -17,7 +17,7 @@ import { getProductImageUrl } from '../lib/images'
 const PopularCategory = () => {
     const { data: products } = useFeaturedProducts()
     const { user } = useAuth()
-    const { addToCart } = useUIContext()
+    const { addItem } = useCart()
     const { likedIds, toggle } = useWishlist()
     const navigate = useNavigate()
 
@@ -51,7 +51,7 @@ const PopularCategory = () => {
                 <p>{item.name}</p>
                 <small className='prize'> {`price: $${item.price}`}</small>
             </div>
-            <MdOutlineAdd className='add-item-btn' onClick={()=> addToCart(item)} />
+            <MdOutlineAdd className='add-item-btn' onClick={()=> addItem(item.id)} />
         </SwiperSlide>
         ))}
       </Swiper>

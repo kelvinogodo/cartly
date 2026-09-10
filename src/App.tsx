@@ -1,6 +1,7 @@
 import './App.css'
 import Home from './pages/Home'
 import ProductDetail from './pages/ProductDetail'
+import CartPage from './pages/CartPage'
 import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Login from './pages/Login'
@@ -22,6 +23,7 @@ function App() {
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/products/:slug' element={<ProductDetail />} />
+          <Route path='/cart' element={<CartPage />} />
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
           <Route path='/admin' element={<ProtectedRoute role="admin"><Admin /></ProtectedRoute>} />
