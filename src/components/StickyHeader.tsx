@@ -1,15 +1,19 @@
-import React from 'react'
-import { useContext } from 'react'
-import GlobalContext from '../Context'
+import { useGlobalContext } from '../Context'
 import "swiper/css";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
 // import required modules
 import { Pagination } from "swiper/modules";
-const StickyHeader = ({categories,text}) => {
-    
-    const {fallBack,filter} = useContext(GlobalContext)
-    
+
+interface Category {
+  id: number;
+  title: string;
+}
+
+const StickyHeader = ({categories,text}: {categories: Category[], text: string}) => {
+
+    const {fallBack,filter} = useGlobalContext()
+
   return (
     <div className='sticky-header'>
         <Swiper

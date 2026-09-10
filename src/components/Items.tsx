@@ -1,8 +1,4 @@
-import React from 'react'
-import Item from './Item'
 import { Swiper, SwiperSlide } from "swiper/react";
-import { useContext } from 'react'
-import GlobalContext from '../Context'
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/pagination";
@@ -10,7 +6,6 @@ import PopularCategory from './PopularCategory';
 // import "./styles.css";
 import { Pagination } from "swiper/modules";
 const Items = () => {
-  const {deleteItem,items} = useContext(GlobalContext)
   return (
     <main>
       <div className='landpage'>

@@ -1,10 +1,8 @@
-import React from 'react'
 import "swiper/css";
 import "swiper/css/pagination";
 import { Swiper, SwiperSlide } from "swiper/react";
 
-import { useContext } from 'react';
-import GlobalContext from '../Context';
+import { useGlobalContext } from '../Context';
 import {MdOutlineAdd} from 'react-icons/md'
 import {AiOutlineDelete} from 'react-icons/ai'
 import {MdOutlineModeEdit} from 'react-icons/md'
@@ -13,10 +11,10 @@ import {AiTwotoneHeart} from 'react-icons/ai'
 // import required modules
 import { Pagination } from "swiper/modules";
 const PopularCategory = () => {
-    const {items,like,checkId,showEditForm,openInfoModal,updateActive} = useContext(GlobalContext)
+    const {items,like,checkId,showEditForm,openInfoModal,updateActive} = useGlobalContext()
   return (
-    <>  
-      
+    <>
+
         <Swiper
         slidesPerView={3}
         spaceBetween={30}
@@ -26,12 +24,12 @@ const PopularCategory = () => {
         modules={[Pagination]}
         className="mySwiper popular-swiper"
       >
-        {items.slice(items.length-19,items.length-9).reverse().map((item)=>(
-        <SwiperSlide className='item popular-item' style={{width:'200px'}}>
+        {items.slice(items.length-19,items.length-9).reverse().map((item: any)=>(
+        <SwiperSlide key={item.id} className='item popular-item' style={{width:'200px'}}>
             <AiTwotoneHeart className={item.liked ? 'liked' : 'unliked'} onClick={()=>like(item.id)}/>
             <div className='item-btn-container'>
             <AiOutlineDelete  className="delete-btn" />
-            <MdOutlineModeEdit deEdit className='edit-btn' onClick={()=>showEditForm(item.id)} /> 
+            <MdOutlineModeEdit className='edit-btn' onClick={()=>showEditForm(item.id)} />
             </div>
             <img src={`images/${item.image}`} alt="" onClick={()=>{
             openInfoModal()
@@ -43,7 +41,7 @@ const PopularCategory = () => {
             </div>
             <MdOutlineAdd className='add-item-btn' onClick={()=> checkId({id:item.id,
             name:item.name,prize:item.prize,image:item.image,color:item.color,madeIn:item.madeIn,size:item.size,liked:item.liked,category:item.category})
-            } /> 
+            } />
         </SwiperSlide>
         ))}
       </Swiper>

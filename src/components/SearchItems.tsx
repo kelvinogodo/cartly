@@ -1,8 +1,6 @@
-import React from 'react'
-import { useContext } from 'react'
-import GlobalContext from '../Context'
+import { useGlobalContext } from '../Context'
 const SearchItems = () => {
-  const {onSearch} = useContext(GlobalContext)
+  const {onSearch} = useGlobalContext()
   return (
     <form className='search-input-container'>
         <input type="search" name="" id="" placeholder='enter name of item to search' className='search-input' onChange={(e)=>{

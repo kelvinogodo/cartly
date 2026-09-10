@@ -1,4 +1,3 @@
-import React from 'react'
 import {AiOutlineClose} from 'react-icons/ai'
 import {motion,AnimatePresence} from 'framer-motion'
 // Import Swiper styles
@@ -8,10 +7,9 @@ import "swiper/css/pagination";
 import { Pagination } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 import {FaShopify} from 'react-icons/fa'
-import { useContext } from 'react';
-import GlobalContext from '../Context';
+import { useGlobalContext } from '../Context';
 const Cart = () => {
-  const {carts,total,closeDisplayCart,deleteCartItem} = useContext(GlobalContext)
+  const {carts,total,closeDisplayCart,deleteCartItem} = useGlobalContext()
   return (
     <AnimatePresence>
     <motion.div animate={{opacity:1}} initial={{opacity:0}} exit={{opacity:0}} className='cart'>
@@ -30,9 +28,10 @@ const Cart = () => {
         modules={[Pagination]}
         className="mySwiper swiper-container"
       >
-        {carts.map(cart =>(carts !== [] ? <SwiperSlide className='cart-slide'>
+        {carts.map((cart: any) =>(
+        <SwiperSlide key={cart.id} className='cart-slide'>
         <AiOutlineClose className="delete-item-btn"onClick={()=>deleteCartItem(cart.id,cart.prize)} />
-            <img src={`images/${cart.image}`} alt="" className='item-pic' key={cart.id} />
+            <img src={`images/${cart.image}`} alt="" className='item-pic' />
             <div className="item-info">
                       <p>available colors: <small><b>{cart.color}</b></small></p>
                       <p>size: <small><b>{cart.size}</b></small></p>
@@ -40,10 +39,11 @@ const Cart = () => {
                       <p>category: <small><b>{cart.category}</b></small></p>
                       <p>prize: <small><b>${cart.prize}</b></small></p>
                   </div>
-        </SwiperSlide > : closeDisplayCart))}
+        </SwiperSlide>
+        ))}
       </Swiper>
       <button className='check-out-btn' type='submit'>check out</button>
-        </div>  
+        </div>
     </motion.div>
     </AnimatePresence>
   )

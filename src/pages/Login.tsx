@@ -1,5 +1,3 @@
-import React from 'react'
-
 const Login = () => {
   return (
     <main className='signup-form-container'>

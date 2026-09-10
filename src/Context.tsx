@@ -1,9 +1,51 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 
-const GlobalContext = createContext();
+// TODO(Phase 4): this loosely-typed shape is a stopgap for the TypeScript
+// migration only — it gets replaced by proper domain types + TanStack Query
+// hooks when the Supabase-backed product catalog lands.
+interface GlobalContextValue {
+  fallBack: () => void;
+  items: any[];
+  like: (id: any) => void;
+  onSearch: (letter: any) => void;
+  closeEditForm: () => void;
+  showEditForm: (id: any) => void;
+  editForm: boolean;
+  closeForm: () => void;
+  showForm: () => void;
+  showAddForm: boolean;
+  addItem: (item: any) => void;
+  deleteCartItem: (id: any, amount: any) => void;
+  deleteItem: (id: any) => void;
+  closeDisplayCart: () => void;
+  filter: (category: any) => void;
+  toggleCartDisplay: () => void;
+  setItems: React.Dispatch<React.SetStateAction<any[]>>;
+  checkId: (cartData: any) => void;
+  displayCart: boolean;
+  editId: any;
+  carts: any[];
+  total: number;
+  filtered: any[];
+  openInfoModal: () => void;
+  closeInfoModal: () => void;
+  showInfoModal: boolean;
+  active: any;
+  updateActive: (active: any) => void;
+  updateData: (incomingData: any) => void;
+}
 
+const GlobalContext = createContext<GlobalContextValue | undefined>(undefined);
 
-export function GlobalDataProvider({children}){
+export function useGlobalContext(): GlobalContextValue {
+  const context = useContext(GlobalContext);
+  if (!context) {
+    throw new Error("useGlobalContext must be used within a GlobalDataProvider");
+  }
+  return context;
+}
+
+export function GlobalDataProvider({children}: {children: ReactNode}){
     const [items,setItems] = useState(
         [
           {
@@ -250,7 +292,7 @@ export function GlobalDataProvider({children}){
       )
     const [filtered,setFiltered] = useState(items)
       // cart items state 
-      const [carts, setCart]= useState([])
+      const [carts, setCart]= useState<any[]>([])
     
       // const [toggleBtn, setToggleBtn] =useState(false)
     
@@ -261,22 +303,17 @@ export function GlobalDataProvider({children}){
     
       // function for getting item added to cart 
     
-      const checkId = (cartData)=>{
+      const checkId = (cartData: any)=>{
         // setItems(items.map(item =>(item.id === cartData.id ? {...item, added: !item.added} : item)))
         //debugger;
         carts.push(cartData);
-        
+
         //setCart([...carts,cartData])
         // carts.map(cart=>(setTotal(cart.prize.reduce((total,num) => (   total  + num  )))))
-    
-        console.log(carts)
-        
-        // // function for getting total prizes array 
-    
+
+        // // function for getting total prizes array
+
           carts.map(cart => (setItemPrizes([...itemPrizes,cart.prize])))
-          console.log(itemPrizes)
-          console.log(itemPrizes.reduce((total,num) => ( total  + num )))
-          console.log(total())
       }
         // const [total,setTotal]=useState(0)
         const total = itemPrizes.reduce((total,num) => ( total  + num ))
@@ -293,26 +330,26 @@ export function GlobalDataProvider({children}){
         }
         // delete item function 
     
-        const deleteItem =(id)=>{
+        const deleteItem =(id: any)=>{
           setFiltered(filtered.filter(item =>(item.id !== id)))
         }
-    
-        // function to delete an item from cart 
-    
-        const deleteCartItem = (id,amount)=>{
+
+        // function to delete an item from cart
+
+        const deleteCartItem = (id: any,amount: any)=>{
           setCart(carts.filter(cart =>(cart.id !== id)))
           setItemPrizes(itemPrizes.filter(itemPrize =>(itemPrize !== amount)))
         }
-    
-        // add item function 
-    
-        const addItem = (item)=>{
+
+        // add item function
+
+        const addItem = (item: any)=>{
           const newItem = {...item,added:false}
           setFiltered([...filtered,newItem])
         }
-    
+
         // show form state
-        const [showAddForm, setShowAddForm] = useState('')
+        const [showAddForm, setShowAddForm] = useState(false)
     
         // show form function 
         const showForm = () => (setShowAddForm(true))
@@ -324,37 +361,37 @@ export function GlobalDataProvider({children}){
         const [editForm,setEditForm]=useState(false)
     
         // show edit form function 
-        const showEditForm=(id)=>{
+        const showEditForm=(id: any)=>{
           setEditForm(true)
           editItem(id)
         }
-        // close editForm function 
+        // close editForm function
         const closeEditForm =()=>{
           setEditForm(false)
         }
-        // edit item function 
-        const [editId,setEditId]=useState('')
-    
-        const editItem = (id) =>{
+        // edit item function
+        const [editId,setEditId]=useState<any>('')
+
+        const editItem = (id: any) =>{
           setEditId(id)
         }
-        
-        const updateData=(incomingData)=>{
+
+        const updateData=(incomingData: any)=>{
           setItems(items.filter(item =>(item.id === incomingData.id ? {incomingData} : item)))
         }
-        
-        const onSearch = (letter)=>{
+
+        const onSearch = (letter: any)=>{
           setFiltered(items.filter(item => (item.name.trim().includes(letter))))
       }
-    
-      // funtion for liking an item 
-    
-      const like = (id)=> {
+
+      // funtion for liking an item
+
+      const like = (id: any)=> {
         setFiltered(filtered.map(item => (item.id === id ? { ...item, liked: !item.liked } : item)));
       }
 
-      // filtering items by category 
-      const filter = (category)=>{
+      // filtering items by category
+      const filter = (category: any)=>{
         setFiltered(items.filter(filtered =>(filtered.category === category)))
       }
 
@@ -363,7 +400,7 @@ export function GlobalDataProvider({children}){
       setFiltered(items)
     }
     // show info modal state 
-    const [showInfoModal, setShowInfoModal] = useState('')
+    const [showInfoModal, setShowInfoModal] = useState(false)
 
     // function for opening more info modal 
     const openInfoModal =()=>{
@@ -375,10 +412,10 @@ export function GlobalDataProvider({children}){
       setShowInfoModal(false)
     }
 
-    const [active, setActive] =useState('')
+    const [active, setActive] =useState<any>(null)
 
-    // function to update active item 
-    const updateActive =(active)=>{
+    // function to update active item
+    const updateActive =(active: any)=>{
       setActive(active)
     }
     return(

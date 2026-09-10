@@ -1,27 +1,26 @@
-import React, {useState} from 'react'
+import {useState} from 'react'
 import {AiOutlineClose} from 'react-icons/ai'
 import {FaShopify} from 'react-icons/fa'
-import { useContext } from 'react'
-import GlobalContext from '../Context'
+import { useGlobalContext } from '../Context'
 import {motion,AnimatePresence} from 'framer-motion'
 const AddForm = () => {
-    const {addItem,closeForm} =useContext(GlobalContext)
-    const [name,setName]=useState()
-    const [prize,setPrize]=useState()
-    const [id,setid]=useState()
-    const [size,setSize] =useState()
-    const [category,setCategory] =useState()
-    const [color,setColor] =useState()
-    const [image,setImage] = useState()
-    const [madeIn,setMadeIn] =useState() 
+    const {addItem,closeForm} = useGlobalContext()
+    const [name,setName]=useState<string>('')
+    const [prize,setPrize]=useState<number | string>('')
+    const [id,setid]=useState<string>('')
+    const [size,setSize] =useState<string>('')
+    const [category,setCategory] =useState<string>('')
+    const [color,setColor] =useState<string>('')
+    const [image,setImage] = useState<string>('')
+    const [madeIn,setMadeIn] =useState<string>('')
 
-    const onSubmit=(e)=>{
+    const onSubmit=(e: React.FormEvent)=>{
         e.preventDefault()
         addItem({name,prize,id,size,image,madeIn,category,color})
         setName('')
         setPrize ('')
-        setid('') 
-        setImage('')  
+        setid('')
+        setImage('')
         setColor('')
         setCategory('')
         setSize('')
@@ -77,8 +76,8 @@ const AddForm = () => {
             </div>
             <input type="submit" value="Edit item" className='submit-btn'/>
         </motion.form>
-    </motion.div> 
-    </AnimatePresence>    
+    </motion.div>
+    </AnimatePresence>
   )
 }
 
