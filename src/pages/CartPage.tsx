@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AiOutlineClose } from 'react-icons/ai'
 import { FaShopify } from 'react-icons/fa'
 import Header from '../components/Header'
@@ -10,6 +10,7 @@ import { getProductImageUrl } from '../lib/images'
 const CartPage = () => {
   const { items, removeItem } = useCart()
   const total = computeCartTotal(items)
+  const navigate = useNavigate()
 
   return (
     <div>
@@ -40,7 +41,7 @@ const CartPage = () => {
               </div>
             ))
           )}
-          <button className='check-out-btn' type='submit' disabled={items.length === 0}>check out</button>
+          <button className='check-out-btn' type='button' disabled={items.length === 0} onClick={() => navigate('/checkout')}>check out</button>
         </div>
       </section>
       <Footer />

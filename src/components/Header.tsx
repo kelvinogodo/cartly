@@ -30,6 +30,7 @@ const Header = () => {
              {menuOpen && (
                <div className="user-menu-dropdown">
                  <small>{profile?.full_name || user.email}</small>
+                 <Link to="/account" onClick={() => setMenuOpen(false)}>my orders</Link>
                  {isAdmin && <Link to="/admin" onClick={() => setMenuOpen(false)}>admin</Link>}
                  <button onClick={() => { setMenuOpen(false); signOut(); }}>log out</button>
                </div>
