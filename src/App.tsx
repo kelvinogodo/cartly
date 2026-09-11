@@ -1,4 +1,5 @@
 import './App.css'
+import { lazy, Suspense } from 'react'
 import Home from './pages/Home'
 import ProductDetail from './pages/ProductDetail'
 import CartPage from './pages/CartPage'
@@ -8,13 +9,16 @@ import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
-import AdminDashboard from './pages/admin/AdminDashboard'
-import AdminProductList from './pages/admin/AdminProductList'
-import AdminProductNew from './pages/admin/AdminProductNew'
-import AdminProductEdit from './pages/admin/AdminProductEdit'
 import { AuthProvider } from './context/AuthContext'
 import { UIProvider } from './context/UIContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
+
+// Admin pages are only ever needed by admins — code-split so anonymous/
+// customer traffic (the vast majority) doesn't pay for this in the initial bundle.
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
+const AdminProductList = lazy(() => import('./pages/admin/AdminProductList'))
+const AdminProductNew = lazy(() => import('./pages/admin/AdminProductNew'))
+const AdminProductEdit = lazy(() => import('./pages/admin/AdminProductEdit'))
 
 const queryClient = new QueryClient()
 
@@ -25,6 +29,7 @@ function App() {
     <UIProvider>
     <BrowserRouter>
     <div className="app">
+        <Suspense fallback={null}>
         <Routes>
           <Route path='/' element={<Home />} />
           <Route path='/products/:slug' element={<ProductDetail />} />
@@ -38,6 +43,7 @@ function App() {
           <Route path='/admin/products/new' element={<ProtectedRoute role="admin"><AdminProductNew /></ProtectedRoute>} />
           <Route path='/admin/products/:id/edit' element={<ProtectedRoute role="admin"><AdminProductEdit /></ProtectedRoute>} />
         </Routes>
+        </Suspense>
     </div>
     </BrowserRouter>
     </UIProvider>

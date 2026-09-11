@@ -8,7 +8,7 @@ import { computeCartTotal } from '../lib/cart'
 import { getProductImageUrl } from '../lib/images'
 
 const CartPage = () => {
-  const { items, removeItem } = useCart()
+  const { items, removeItem, isLoading } = useCart()
   const total = computeCartTotal(items)
   const navigate = useNavigate()
 
@@ -23,7 +23,9 @@ const CartPage = () => {
             </small>
           </div>
           <small className='prize-badge'>total = {`$${total}`}</small>
-          {items.length === 0 ? (
+          {isLoading ? (
+            <p>loading your cart...</p>
+          ) : items.length === 0 ? (
             <p>your cart is empty. <Link to='/'>keep shopping</Link></p>
           ) : (
             items.map((cartItem) => (

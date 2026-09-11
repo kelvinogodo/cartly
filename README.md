@@ -1,81 +1,91 @@
 # Cartly
 
-A responsive e-commerce storefront UI built with React — browse products by category, live-search the catalog, add items to a running cart with total pricing, and manage listings through an animated add/edit product form.
-
-> **Status:** actively being rebuilt. The build tooling has moved from Create React App to Vite; a Supabase-backed product catalog and real authentication are next, replacing the in-memory Context state described below. See [Roadmap](#roadmap).
+A full-stack e-commerce storefront — browse and search a real product catalog, sign up and log in, keep a cart that persists across devices, check out into a real order, and manage the catalog through an admin dashboard with image upload. Built with React, TypeScript, and Supabase (Postgres, Auth, Storage).
 
 ## Features
 
-- **Product catalog** — grid of items (clothing, shoes, women's wear, handbags) with image, name, price, size, color, and country of origin.
-- **Category filtering** — a sticky category bar (`all`, `men`, `shoe`, `women`, `handbag`) to narrow the catalog instantly.
-- **Live search** — filter products by name as you type.
-- **Like/favorite toggle** — mark items on the fly.
-- **Item detail modal** — click an item for a closer look at its details.
-- **Shopping cart** — an animated, swipeable cart drawer that lists added items and keeps a running total; items can be removed individually.
-- **Add item form** — an animated modal for appending new products to the catalog (name, price, size, color, category, origin, image).
-- **Edit item form** — scaffolded for updating existing catalog entries.
-- Global state managed with React's **Context API** — the entire catalog and cart currently live in memory (no backend yet — see Roadmap).
+- **Product catalog** — category filtering and live search, backed by real Supabase queries (not client-side array filtering).
+- **Product detail pages** — shareable `/products/:slug` routes.
+- **Wishlist** — persists per signed-in user (`wishlist_items`), not lost on re-filter.
+- **Auth** — email/password sign up and login via Supabase Auth, with email confirmation and role-based access (`customer` / `admin`).
+- **Cart** — persists to `localStorage` for guests and to a `cart_items` table for signed-in users, merging automatically on login.
+- **Checkout & orders** — turns the cart into a real order (`orders` + `order_items`, price/name snapshotted at purchase time); order history at `/account`. Order placement only — no payment gateway is integrated.
+- **Admin dashboard** (`/admin`, role-gated) — create, edit, and delete products, with real image upload to Supabase Storage.
+- **Contact form & newsletter signup** — write to real `inquiries` / `newsletter_subscribers` tables.
 
 ## Tech stack
 
-- [React 18](https://react.dev/) + [Vite](https://vitejs.dev/) for tooling, [React Router](https://reactrouter.com/) for routing
-- [Framer Motion](https://www.framer.com/motion/) for animations
-- [Swiper](https://swiperjs.com/) for carousels (hero banner, category bar, cart drawer)
-- [React Icons](https://react-icons.github.io/react-icons/) for iconography
+- [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) + [Vite](https://vitejs.dev/), [React Router](https://reactrouter.com/) for routing
+- [Supabase](https://supabase.com/) — Postgres (with row-level security), Auth, Storage
+- [TanStack Query](https://tanstack.com/query) for server state (data fetching, caching, mutations)
+- [Framer Motion](https://www.framer.com/motion/) for animations, [Swiper](https://swiperjs.com/) for carousels, [React Icons](https://react-icons.github.io/react-icons/)
+- [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react) for tests
 
 ## Getting started
 
 ```bash
 npm install
+cp .env.example .env.local   # then fill in your Supabase project's URL + publishable key
 npm run dev
 ```
 
-Open the local URL Vite prints (defaults to [http://localhost:5173](http://localhost:5173)) to view it in the browser. The page reloads automatically as you edit source files.
+Open the local URL Vite prints (defaults to [http://localhost:5173](http://localhost:5173)).
 
-Other available scripts:
+### Environment variables
 
-- `npm run build` — build a production bundle to `dist/`
+| Variable | Where it's used | Notes |
+|---|---|---|
+| `VITE_SUPABASE_URL` | Browser (Vite inlines it into the build) | Your Supabase project URL |
+| `VITE_SUPABASE_PUBLISHABLE_KEY` | Browser | Safe to expose — access is enforced by RLS, not by keeping this secret |
+| `SUPABASE_SECRET_KEY` | Local scripts only (`scripts/seed.ts`) | **Never** prefix this with `VITE_` — it bypasses RLS entirely |
+| `CARTLY_DB_PASSWORD` | Local scripts only (`scripts/migrate.ts`) | Direct Postgres connection for running migrations |
+
+`.env.local` is gitignored and never reaches a deployed build. On a host like Vercel, `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` must be added separately as that platform's environment variables (and the deploy re-run) — otherwise the app fails fast on startup rather than running with a broken client (see `src/lib/supabaseClient.ts`).
+
+### Database setup
+
+The schema lives in `supabase/migrations/`. Since this project doesn't use the Supabase CLI's Docker-dependent workflow, migrations run via a direct Postgres connection instead:
+
+```bash
+npm run db:migrate   # applies supabase/migrations/*.sql, in order
+npm run db:seed      # loads demo product data
+```
+
+To make your account an admin, sign up through `/signup`, confirm the email, then in the Supabase SQL Editor:
+
+```sql
+update public.profiles set role = 'admin' where id = '<your-auth-uid>';
+```
+
+### Other scripts
+
+- `npm run build` — production bundle to `dist/`
 - `npm run preview` — locally preview the production build
+- `npm run typecheck` / `npm run typecheck:scripts` — type-check the app / the Node scripts
+- `npm run test` / `npm run test:watch` — run the test suite once / in watch mode
 
 ## Project structure
 
 ```
 src/
-  Context.jsx        # global state: catalog, cart, filters, search, modals
-  App.jsx             # routes (Home, Login)
-  main.jsx            # entry point
-  pages/
-    Home.jsx          # main storefront layout
-    Login.jsx          # placeholder, not yet implemented
-    Admin.jsx          # placeholder, not yet implemented
-  components/
-    Header.jsx, StickyHeader.jsx   # nav, search entry, cart/add triggers
-    Items.jsx, Item.jsx            # catalog grid and card
-    Categories.jsx, PopularCategory.jsx
-    SearchItems.jsx
-    Cart.jsx
-    AddForm.jsx, EditForm.jsx
-    MoreInfoModal.jsx
-    Contact.jsx, Footer.jsx
+  App.tsx, main.tsx        # routes, providers, entry point
+  context/                 # AuthContext (session/role), UIContext (filters, drawers)
+  hooks/                   # TanStack Query hooks — products, cart, orders, wishlist, admin mutations
+  lib/                     # pure/utility modules: cart math, slugs, image URLs, Storage upload, Supabase client
+  types/                   # generated-style Database type + hand-written domain aliases
+  pages/                   # route components, including pages/admin/
+  components/              # presentational + shared components
+scripts/
+  migrate.ts, seed.ts       # local-only: apply migrations / seed data via direct DB connection
+supabase/
+  migrations/               # schema as SQL, applied in order
 ```
 
 ## Known limitations
 
-This is a front-end concept/demo being actively rebuilt into a real app, not yet production-ready:
-
-- All product data is hardcoded in [`Context.jsx`](src/Context.jsx) — there is no real backend or database yet.
-- `Login` and `Admin` pages are unstyled placeholders.
-- No persistence — cart and catalog edits reset on page reload.
-- No checkout/payment integration.
-
-## Roadmap
-
-The app is being rebuilt in phases:
-
-- [x] Migrate build tooling from Create React App to Vite
-- [ ] **Foundation** — Supabase-backed product catalog and database, real authentication (working `Login`), category/search wired to real data; cart stays client-side but is architected to move server-side later
-- [ ] **Admin CRUD** — database-backed add/edit/delete for products, with real image upload
-- [ ] **Checkout** — checkout flow and order history
+- No payment gateway — checkout creates an order record only (by design, not yet implemented).
+- No product variants (a product has one size/color, not a matrix of stocked combinations).
+- No email notifications for orders, inquiries, or newsletter signups (the tables exist; sending mail would need a Supabase Edge Function or similar).
 
 ## License
 

@@ -8,7 +8,7 @@ import { useCreateOrder } from '../hooks/useCreateOrder'
 import { computeCartTotal } from '../lib/cart'
 
 const Checkout = () => {
-  const { items } = useCart()
+  const { items, isLoading } = useCart()
   const total = computeCartTotal(items)
   const createOrder = useCreateOrder()
   const navigate = useNavigate()
@@ -31,7 +31,9 @@ const Checkout = () => {
     <div>
       <Header />
       <section className='cart-page'>
-        {items.length === 0 ? (
+        {isLoading ? (
+          <p>loading your cart...</p>
+        ) : items.length === 0 ? (
           <p>your cart is empty. <Link to='/'>keep shopping</Link></p>
         ) : (
           <form className='cart-page-list' onSubmit={onSubmit}>
@@ -55,7 +57,7 @@ const Checkout = () => {
             </fieldset>
             {createOrder.isError && (
               <small className="prize" style={{ color: 'crimson' }}>
-                {(createOrder.error as Error).message}
+                {createOrder.error.message}
               </small>
             )}
             <input
