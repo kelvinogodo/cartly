@@ -8,7 +8,10 @@ import {BrowserRouter, Route, Routes} from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
-import Admin from './pages/Admin'
+import AdminDashboard from './pages/admin/AdminDashboard'
+import AdminProductList from './pages/admin/AdminProductList'
+import AdminProductNew from './pages/admin/AdminProductNew'
+import AdminProductEdit from './pages/admin/AdminProductEdit'
 import { AuthProvider } from './context/AuthContext'
 import { UIProvider } from './context/UIContext'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -30,7 +33,10 @@ function App() {
           <Route path='/account' element={<ProtectedRoute><Account /></ProtectedRoute>} />
           <Route path='/login' element={<Login />} />
           <Route path='/signup' element={<Signup />} />
-          <Route path='/admin' element={<ProtectedRoute role="admin"><Admin /></ProtectedRoute>} />
+          <Route path='/admin' element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
+          <Route path='/admin/products' element={<ProtectedRoute role="admin"><AdminProductList /></ProtectedRoute>} />
+          <Route path='/admin/products/new' element={<ProtectedRoute role="admin"><AdminProductNew /></ProtectedRoute>} />
+          <Route path='/admin/products/:id/edit' element={<ProtectedRoute role="admin"><AdminProductEdit /></ProtectedRoute>} />
         </Routes>
     </div>
     </BrowserRouter>

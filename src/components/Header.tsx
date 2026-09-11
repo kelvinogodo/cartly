@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {BsFillCartCheckFill} from 'react-icons/bs'
+import {GrAdd} from 'react-icons/gr'
 import {FaShopify} from 'react-icons/fa'
 import SearchItems from './SearchItems'
 import { useCart } from '../hooks/useCart'
@@ -23,6 +24,7 @@ const Header = () => {
          {cartItems.length !== 0 && <small className="item-number">
            {cartItems.length}
          </small>}
+       {isAdmin && <Link to="/admin/products/new"><GrAdd className='add-btn icon'/></Link>}
        <div className="user-menu">
          {user ? (
            <>

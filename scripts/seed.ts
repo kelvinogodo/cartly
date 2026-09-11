@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import ws from 'ws';
+import { slugify } from '../src/lib/slug';
 import type { Database } from '../src/types/supabase';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -54,15 +55,6 @@ const legacyItems = [
 // A handful marked featured so `is_featured`-driven "popular" sections have content.
 const featuredIds = new Set([1, 2, 6, 9, 11, 16]);
 
-function slugify(name: string, id: number): string {
-  const base = name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '');
-  return `${base}-${id}`;
-}
-
 async function main() {
   const { data: categories, error: categoriesError } = await supabase
     .from('categories')
@@ -72,7 +64,7 @@ async function main() {
   const categoryIdBySlug = new Map(categories.map((c) => [c.slug, c.id]));
 
   const rows: Database['public']['Tables']['products']['Insert'][] = legacyItems.map((item) => ({
-    slug: slugify(item.name, item.id),
+    slug: `${slugify(item.name)}-${item.id}`,
     name: item.name,
     price: item.prize,
     stock: 25,
