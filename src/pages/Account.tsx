@@ -1,38 +1,50 @@
-import { FaShopify } from 'react-icons/fa'
 import Header from '../components/Header'
 import Footer from '../components/Footer'
 import { useOrders } from '../hooks/useOrders'
 import { useAuth } from '../context/AuthContext'
 
 const Account = () => {
-  const { profile, user } = useAuth()
+  const { profile, user, signOut } = useAuth()
   const { data: orders, isLoading, error } = useOrders()
 
   return (
     <div>
       <Header />
-      <section className='cart-page'>
-        <div className='cart-page-list'>
-          <div className='form-header'>
-            <small className='logo'>
-              cartly <FaShopify />
-            </small>
-          </div>
-          <h5>{profile?.full_name || user?.email}</h5>
-          {isLoading && <p>loading orders...</p>}
-          {error && <p>could not load orders.</p>}
-          {orders?.length === 0 && <p>no orders yet.</p>}
-          {orders?.map((order) => (
-            <div key={order.id} className='cart-slide' style={{ flexDirection: 'column', alignItems: 'flex-start', height: 'auto' }}>
-              <p>order #{order.id.slice(0, 8)} — <b>{order.status}</b> — total ${order.total}</p>
-              <small>{new Date(order.created_at).toLocaleDateString()}</small>
-              <ul>
-                {order.order_items.map((item) => (
-                  <li key={item.id}>{item.quantity} × {item.product_name} — ${item.subtotal}</li>
-                ))}
-              </ul>
+      <section className="account-page">
+        <div className="account-layout">
+          <div className="account-sidebar">
+            <div className="account-name serif">{profile?.full_name || user?.email}</div>
+            <div className="account-nav">
+              <div className="account-nav-item active">Order history</div>
+              <button className="account-nav-item" style={{ background: 'none', border: 'none', textAlign: 'left', font: 'inherit', cursor: 'pointer' }} onClick={() => signOut()}>Sign out</button>
             </div>
-          ))}
+          </div>
+
+          <div className="account-main">
+            <h1 className="serif" style={{ fontSize: 22 }}>Order history</h1>
+
+            {isLoading && <p style={{ color: 'var(--text-muted)' }}>Loading orders…</p>}
+            {error && <p style={{ color: 'var(--text-muted)' }}>Could not load orders.</p>}
+            {orders?.length === 0 && <p style={{ color: 'var(--text-muted)' }}>No orders yet.</p>}
+
+            {orders?.map((order) => (
+              <div className="order-card" key={order.id}>
+                <div className="order-card-head">
+                  <div>
+                    <div className="order-id">Order #{order.id.slice(0, 8)}</div>
+                    <div className="order-date">Placed {new Date(order.created_at).toLocaleDateString()}</div>
+                  </div>
+                  <div className={`order-status ${order.status === 'fulfilled' ? 'fulfilled' : ''}`}>{order.status}</div>
+                </div>
+                <div className="order-items-row">
+                  {order.order_items.map((item) => (
+                    <div key={item.id}>{item.quantity} × {item.product_name}</div>
+                  ))}
+                </div>
+                <div className="order-total">Total ${order.total}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
       <Footer />

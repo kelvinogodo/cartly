@@ -5,10 +5,12 @@ import Header from './Header';
 import { UIProvider } from '../context/UIContext';
 import { useCart } from '../hooks/useCart';
 import { useAuth } from '../context/AuthContext';
+import { useCategories } from '../hooks/useCategories';
 import type { Product } from '../types/domain';
 
 vi.mock('../hooks/useCart');
 vi.mock('../context/AuthContext');
+vi.mock('../hooks/useCategories');
 
 function mockProduct(id: string): Product {
   return {
@@ -40,6 +42,7 @@ function renderHeader() {
 }
 
 beforeEach(() => {
+  vi.mocked(useCategories).mockReturnValue({ data: [], isLoading: false, error: null } as unknown as ReturnType<typeof useCategories>);
   vi.mocked(useAuth).mockReturnValue({
     session: null,
     user: null,

@@ -18,7 +18,7 @@ A full-stack e-commerce storefront — browse and search a real product catalog,
 - [React 18](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/) + [Vite](https://vitejs.dev/), [React Router](https://reactrouter.com/) for routing
 - [Supabase](https://supabase.com/) — Postgres (with row-level security), Auth, Storage
 - [TanStack Query](https://tanstack.com/query) for server state (data fetching, caching, mutations)
-- [Framer Motion](https://www.framer.com/motion/) for animations, [Swiper](https://swiperjs.com/) for carousels, [React Icons](https://react-icons.github.io/react-icons/)
+- [Framer Motion](https://www.framer.com/motion/) for animations, [React Icons](https://react-icons.github.io/react-icons/) (Feather set) for iconography
 - [Vitest](https://vitest.dev/) + [React Testing Library](https://testing-library.com/react) for tests
 
 ## Getting started

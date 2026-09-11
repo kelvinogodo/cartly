@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom'
-import { FaShopify } from 'react-icons/fa'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import { useProducts } from '../../hooks/useProducts'
@@ -19,33 +18,46 @@ const AdminProductList = () => {
   return (
     <div>
       <Header />
-      <section className='cart-page'>
-        <div className='cart-page-list' style={{ maxWidth: 900 }}>
-          <div className='form-header'>
-            <small className='logo'>
-              cartly <FaShopify />
-            </small>
-          </div>
-          <h5>manage products</h5>
-          <Link to='/admin/products/new' className='submit-btn' style={{ textDecoration: 'none', textAlign: 'center', width: '80%' }}>
-            + add product
-          </Link>
-          {isLoading && <p>loading...</p>}
-          {error && <p>could not load products.</p>}
-          {products?.map((product) => (
-            <div key={product.id} className='cart-slide'>
-              <img src={getProductImageUrl(product.image_path)} alt={product.name} className='item-pic' />
-              <div className="item-info">
-                <p>{product.name}</p>
-                <small>${product.price} · stock {product.stock}{product.is_featured ? ' · featured' : ''}</small>
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'center' }}>
-                <Link to={`/admin/products/${product.id}/edit`}>edit</Link>
-                <button type='button' onClick={() => onDelete(product.id, product.name)}>delete</button>
-              </div>
-            </div>
-          ))}
+      <div className="admin-header">
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
+          <span className="logo">Cartly</span>
+          <span className="admin-badge">Admin</span>
         </div>
+      </div>
+
+      <section className="admin-page">
+        <div className="admin-toprow">
+          <h1 className="serif" style={{ fontSize: 26 }}>Products</h1>
+          <Link to="/admin/products/new" className="btn-primary">+ Add product</Link>
+        </div>
+
+        {isLoading && <p style={{ color: 'var(--text-muted)' }}>Loading…</p>}
+        {error && <p style={{ color: 'var(--text-muted)' }}>Could not load products.</p>}
+
+        <div className="admin-table-head">
+          <div style={{ width: 48 }} />
+          <div style={{ flex: 1 }}>Name</div>
+          <div style={{ width: 90 }}>Price</div>
+          <div style={{ width: 70 }}>Stock</div>
+          <div style={{ width: 90 }}>Featured</div>
+          <div style={{ width: 100 }} />
+        </div>
+
+        {products?.map((product) => (
+          <div className="admin-row" key={product.id}>
+            <div className="admin-row-thumb">
+              <img src={getProductImageUrl(product.image_path)} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            </div>
+            <div className="admin-row-name">{product.name}</div>
+            <div className="admin-row-price serif" style={{ width: 90 }}>${product.price}</div>
+            <div style={{ width: 70, fontSize: 13 }}>{product.stock}</div>
+            <div style={{ width: 90, fontSize: 13, color: product.is_featured ? 'var(--accent)' : 'var(--text-faint)' }}>{product.is_featured ? 'Yes' : 'No'}</div>
+            <div className="admin-row-actions">
+              <Link to={`/admin/products/${product.id}/edit`}>Edit</Link>
+              <button className="danger" onClick={() => onDelete(product.id, product.name)}>Delete</button>
+            </div>
+          </div>
+        ))}
       </section>
       <Footer />
     </div>

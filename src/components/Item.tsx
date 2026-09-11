@@ -1,9 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
-import {AiOutlineDelete} from 'react-icons/ai'
-import {MdOutlineModeEdit} from 'react-icons/md'
-import {AiTwotoneHeart} from 'react-icons/ai'
-import {motion} from 'framer-motion'
-import {MdOutlineAdd} from 'react-icons/md'
+import { motion } from 'framer-motion'
+import { FiHeart, FiPlus, FiEdit2, FiTrash2 } from 'react-icons/fi'
 import { useAuth } from '../context/AuthContext'
 import { useCart } from '../hooks/useCart'
 import { useWishlist } from '../hooks/useWishlist'
@@ -34,22 +31,30 @@ const Item = ({item}: {item: Product}) => {
   }
 
   return (
-    <motion.div layout className='item'>
-        <AiTwotoneHeart className={liked ? 'liked' : 'unliked'} onClick={onLikeClick}/>
+    <motion.div layout className="product-card">
+      <div className="product-card-image-wrap">
+        <button
+          className={`product-card-like ${liked ? 'liked' : ''}`}
+          onClick={onLikeClick}
+          aria-label="Wishlist"
+        >
+          <FiHeart size={16} fill={liked ? 'currentColor' : 'none'} />
+        </button>
         {isAdmin && (
-          <div className='item-btn-container'>
-            <AiOutlineDelete className="delete-btn" onClick={onDelete} />
-            <Link to={`/admin/products/${item.id}/edit`}><MdOutlineModeEdit className='edit-btn' /></Link>
+          <div className="product-card-admin">
+            <Link to={`/admin/products/${item.id}/edit`} aria-label="Edit"><FiEdit2 size={13} /></Link>
+            <button onClick={onDelete} aria-label="Delete"><FiTrash2 size={13} /></button>
           </div>
         )}
-        <Link to={`/products/${item.slug}`}>
+        <Link to={`/products/${item.slug}`} className="product-card-link">
           <img src={getProductImageUrl(item.image_path)} alt={item.name} />
         </Link>
-        <div className="item-info">
-            <p>{item.name}</p>
-            <small className='prize'> {`price: $${item.price}`}</small>
-        </div>
-        <MdOutlineAdd className='add-item-btn' onClick={()=> addItem(item.id)} />
+      </div>
+      <div className="product-card-name">{item.name}</div>
+      <div className="product-card-price serif">${item.price}</div>
+      <button className="product-card-add" onClick={() => addItem(item.id)}>
+        <FiPlus size={12} style={{ marginRight: 4, verticalAlign: '-2px' }} />Add
+      </button>
     </motion.div>
   )
 }

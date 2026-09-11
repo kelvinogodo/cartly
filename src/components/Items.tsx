@@ -1,82 +1,22 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-// Import Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
 import PopularCategory from './PopularCategory';
-// import "./styles.css";
-import { Pagination } from "swiper/modules";
+
 const Items = () => {
   return (
     <main>
-      <div className='landpage'>
-      <Swiper
-        pagination={{
-          dynamicBullets: true,
-        }}
-        modules={[Pagination]}
-        className="mySwiper swiper-container"
-      >
-        <SwiperSlide className='slide'>
-          <div className="land-text">
-            <h5>
-              suit up!  and and focus on being a better man, every day. 
-            </h5>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui consequatur sunt obcaecati autem pariatur soluta doloribus recusandae veniam harum assumenda?</p>
-            <button>explore</button>
+      <div className="hero">
+        <div className="hero-image">
+          <img src="/images/preview (2).png" alt="New season editorial" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          <div className="hero-badge">
+            <div className="serif" style={{ fontSize: 20, marginBottom: 6 }}>The Autumn Journal</div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>Tailoring, reconsidered — six pieces for the season ahead.</div>
           </div>
-          <div className="slider-img-container">
-            <img src='/images/preview (2).png' alt="" className='slider-img' />
-          </div>
-        </SwiperSlide>
-        <SwiperSlide className='slide'>
-          <div className="slider-img-container">
-            <img src='/images/preview (5).png' alt="" className='slider-img' />
-          </div>
-          <div className="land-text">
-              <h5>
-              get most comfortable shoes at cartly
-              </h5>
-              <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui consequatur sunt obcaecati autem pariatur soluta doloribus recusandae veniam harum assumenda?</p>
-              <button>explore</button>
-          </div>
-        </SwiperSlide>
-        <SwiperSlide className='slide'>
-          <div className="land-text">
-            <h5>
-              check out our amazing ladies footwear collection
-            </h5>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui consequatur sunt obcaecati autem pariatur soluta doloribus recusandae veniam harum assumenda?</p>
-            <button>explore</button>
-          </div>
-          <div className="slider-img-container">
-          <img src='/images/preview (3).png' alt="" className='slider-img' />
-          </div>
-        </SwiperSlide >
-        <SwiperSlide className='slide'>
-          <div className="slider-img-container">
-              <img src='/images/preview (1).png' alt="" className='slider-img' />
-            </div>
-            <div className="land-text">
-                <h5>
-                get most comfortable shoes at cartly
-                </h5>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui consequatur sunt obcaecati autem pariatur soluta doloribus recusandae veniam harum assumenda?</p>
-                <button>explore</button>
-            </div>
-        </SwiperSlide>
-        <SwiperSlide className='slide'>
-          <div className="land-text">
-            <h5>
-              check out our amazing ladies footwear collection
-            </h5>
-            <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Qui consequatur sunt obcaecati autem pariatur soluta doloribus recusandae veniam harum assumenda?</p>
-            <button>explore</button>
-          </div>
-          <div className="slider-img-container">
-            <img src='/images/preview (4).png' alt="" className='slider-img' />
-          </div>
-        </SwiperSlide >
-      </Swiper>
+        </div>
+        <div className="hero-content">
+          <div className="hero-eyebrow">New season</div>
+          <h1 className="hero-title">A wardrobe with something to say</h1>
+          <p className="hero-copy">Curated menswear, womenswear, footwear and leather goods — fewer pieces, chosen with intent.</p>
+          <button className="btn-primary" style={{ width: 'fit-content' }}>Shop the edit</button>
+        </div>
       </div>
       <PopularCategory />
     </main>

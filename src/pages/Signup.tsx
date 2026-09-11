@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { FaShopify } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
 
 const Signup = () => {
@@ -27,46 +26,53 @@ const Signup = () => {
 
   if (done) {
     return (
-      <main className='signup-form-container'>
-        <div className="add-form">
-          <div className='form-header'>
-            <small className='logo'>
-              cartly <FaShopify />
-            </small>
+      <div className="auth-page">
+        <div className="auth-panel">
+          <div className="auth-form">
+            <div className="auth-heading"><div className="logo">Cartly</div></div>
+            <p style={{ textAlign: 'center', fontSize: 14, color: 'var(--text-muted)' }}>
+              Check your email to confirm your account, then <Link to="/login">sign in</Link>.
+            </p>
           </div>
-          <p>Check your email to confirm your account, then <Link to="/login">sign in</Link>.</p>
         </div>
-      </main>
+        <div className="auth-visual" />
+      </div>
     )
   }
 
   return (
-    <main className='signup-form-container'>
-      <form className="sign-up-form add-form" onSubmit={onSubmit}>
-        <div className='form-header'>
-          <small className='logo'>
-            cartly <FaShopify />
-          </small>
-        </div>
-        <fieldset className="form-controller">
-          <legend>full name</legend>
-          <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-        </fieldset>
-        <fieldset className="form-controller">
-          <legend>email</legend>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </fieldset>
-        <fieldset className="form-controller">
-          <legend>password</legend>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
-        </fieldset>
-        {error && <small className="prize" style={{ color: 'crimson' }}>{error}</small>}
-        <input type="submit" value={submitting ? 'signing up...' : 'sign up'} className='submit-btn' disabled={submitting} />
-        <p>
-          already have an account? <Link to="/login">sign in</Link>
-        </p>
-      </form>
-    </main>
+    <div className="auth-page">
+      <div className="auth-panel">
+        <form className="auth-form" onSubmit={onSubmit}>
+          <div className="auth-heading">
+            <div className="logo">Cartly</div>
+            <p>Create your account</p>
+          </div>
+
+          <div className="field">
+            <label>Full name</label>
+            <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label>Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+          </div>
+
+          {error && <p className="field-error" style={{ marginTop: -8, marginBottom: 16 }}>{error}</p>}
+
+          <button type="submit" className="btn-primary" disabled={submitting}>
+            {submitting ? 'Creating account…' : 'Create account'}
+          </button>
+
+          <div className="auth-switch">Already have an account? <Link to="/login">Sign in</Link></div>
+        </form>
+      </div>
+      <div className="auth-visual" />
+    </div>
   )
 }
 

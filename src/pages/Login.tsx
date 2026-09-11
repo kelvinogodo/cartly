@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { FaShopify } from 'react-icons/fa'
 import { useAuth } from '../context/AuthContext'
 
 const Login = () => {
@@ -27,28 +26,34 @@ const Login = () => {
   }
 
   return (
-    <main className='signup-form-container'>
-      <form className="sign-up-form add-form" onSubmit={onSubmit}>
-        <div className='form-header'>
-          <small className='logo'>
-            cartly <FaShopify />
-          </small>
-        </div>
-        <fieldset className="form-controller">
-          <legend>email</legend>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-        </fieldset>
-        <fieldset className="form-controller">
-          <legend>password</legend>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-        </fieldset>
-        {error && <small className="prize" style={{ color: 'crimson' }}>{error}</small>}
-        <input type="submit" value={submitting ? 'signing in...' : 'sign in'} className='submit-btn' disabled={submitting} />
-        <p>
-          no account? <Link to="/signup">sign up</Link>
-        </p>
-      </form>
-    </main>
+    <div className="auth-page">
+      <div className="auth-visual" />
+      <div className="auth-panel">
+        <form className="auth-form" onSubmit={onSubmit}>
+          <div className="auth-heading">
+            <div className="logo">Cartly</div>
+            <p>Welcome back</p>
+          </div>
+
+          <div className="field">
+            <label>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </div>
+          <div className="field">
+            <label>Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </div>
+
+          {error && <p className="field-error" style={{ marginTop: -8, marginBottom: 16 }}>{error}</p>}
+
+          <button type="submit" className="btn-primary" disabled={submitting}>
+            {submitting ? 'Signing in…' : 'Sign in'}
+          </button>
+
+          <div className="auth-switch">No account? <Link to="/signup">Create one</Link></div>
+        </form>
+      </div>
+    </div>
   )
 }
 

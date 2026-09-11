@@ -1,37 +1,25 @@
 import { useCategories } from '../hooks/useCategories'
 import { useUIContext } from '../context/UIContext'
-import "swiper/css";
-import "swiper/css/pagination";
-import { Swiper, SwiperSlide } from "swiper/react";
-// import required modules
-import { Pagination } from "swiper/modules";
 
 const StickyHeader = ({text}: {text: string}) => {
-
     const { data: categories } = useCategories()
     const { categoryFilter, setCategoryFilter } = useUIContext()
 
   return (
-    <div className='sticky-header'>
-        <Swiper
-           slidesPerView={3}
-           spaceBetween={30}
-           pagination={{
-             clickable: true,
-           }}
-           modules={[Pagination]}
-           className="mySwiper popular-swiper"
+    <div>
+      <h2 className="section-heading serif" id="shop-the-collection">{text}</h2>
+      <nav className="category-nav">
+        <button className={categoryFilter === null ? 'active' : ''} onClick={() => setCategoryFilter(null)}>All</button>
+        {categories?.map((category) => (
+          <button
+            key={category.id}
+            className={categoryFilter === category.id ? 'active' : ''}
+            onClick={() => setCategoryFilter(category.id)}
           >
-        <h5 className='sort-header'>{text}</h5>
-        <SwiperSlide className='come'>
-          <button className={`category ${categoryFilter === null ? 'active' : ''}`} onClick={()=>setCategoryFilter(null)}>all</button>
-        </SwiperSlide>
-        {categories?.map(category =>(
-            <SwiperSlide key={category.id} className='come'>
-             <button className={`category ${categoryFilter === category.id ? 'active' : ''}`} onClick={()=>setCategoryFilter(category.id)}>{category.name}</button>
-             </SwiperSlide>
+            {category.name}
+          </button>
         ))}
-        </Swiper>
+      </nav>
     </div>
   )
 }

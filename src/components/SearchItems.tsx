@@ -2,9 +2,8 @@ import { useUIContext } from '../context/UIContext'
 const SearchItems = () => {
   const {setSearchTerm} = useUIContext()
   return (
-    <form className='search-input-container'>
-        <input type="search" name="" id="" placeholder='enter name of item to search' className='search-input' onChange={(e)=>{
-          e.preventDefault()
+    <form className='search-input-container' onSubmit={(e) => e.preventDefault()}>
+        <input type="search" placeholder='Search products' className='search-input' autoFocus onChange={(e)=>{
           setSearchTerm(e.target.value)}}/>
     </form>
   )

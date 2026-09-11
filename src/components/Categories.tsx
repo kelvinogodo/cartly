@@ -7,12 +7,15 @@ const Categories = () => {
     const {categoryFilter,searchTerm} = useUIContext()
     const {data: products, isLoading, error} = useProducts({categoryId: categoryFilter, search: searchTerm})
   return (
-    <section className='category-section'>
-      <StickyHeader text={'sort by category'}/>
-      <motion.div layout animate={{opacity:1}} initial={{opacity:0}} exit={{opacity:0}}  className='items-container category-container'>
-        {isLoading && <p>loading products...</p>}
-        {error && <p>could not load products.</p>}
-        <AnimatePresence >
+    <section>
+      <StickyHeader text={'Shop the collection'}/>
+      {isLoading && <p style={{textAlign:'center', padding:'40px 0', color:'var(--text-muted)'}}>Loading products…</p>}
+      {error && <p style={{textAlign:'center', padding:'40px 0', color:'var(--text-muted)'}}>Could not load products.</p>}
+      {products && products.length === 0 && !isLoading && (
+        <p style={{textAlign:'center', padding:'40px 0', color:'var(--text-muted)'}}>No products found.</p>
+      )}
+      <motion.div layout className="product-grid">
+        <AnimatePresence>
           {products?.map((item) =>(<Item key={item.id} item= {item} />))  }
         </AnimatePresence>
       </motion.div>

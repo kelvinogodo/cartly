@@ -1,26 +1,41 @@
 import { Link } from 'react-router-dom'
-import { FaShopify } from 'react-icons/fa'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
+import { useProducts } from '../../hooks/useProducts'
 
-const AdminDashboard = () => (
-  <div>
-    <Header />
-    <section className='cart-page'>
-      <div className='cart-page-list'>
-        <div className='form-header'>
-          <small className='logo'>
-            cartly <FaShopify />
-          </small>
+const AdminDashboard = () => {
+  const { data: products } = useProducts()
+
+  return (
+    <div>
+      <Header />
+      <div className="admin-header">
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
+          <span className="logo">Cartly</span>
+          <span className="admin-badge">Admin</span>
         </div>
-        <h5>admin dashboard</h5>
-        <Link to='/admin/products' className='submit-btn' style={{ textDecoration: 'none', textAlign: 'center', width: '80%' }}>
-          manage products
-        </Link>
       </div>
-    </section>
-    <Footer />
-  </div>
-)
+
+      <section className="admin-page">
+        <h1 className="serif" style={{ fontSize: 26, marginBottom: 28 }}>Dashboard</h1>
+
+        <div className="admin-stats">
+          <div className="admin-stat">
+            <div className="admin-stat-label">Products</div>
+            <div className="admin-stat-value serif">{products?.length ?? '—'}</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
+          <Link to="/admin/products" style={{ border: '1px solid var(--text)', padding: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <span className="serif" style={{ fontSize: 18 }}>Manage products</span>
+            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Add, edit, and remove catalog listings, including image uploads.</span>
+          </Link>
+        </div>
+      </section>
+      <Footer />
+    </div>
+  )
+}
 
 export default AdminDashboard
