@@ -25,12 +25,12 @@ const Items = () => {
             <button>explore</button>
           </div>
           <div className="slider-img-container">
-            <img src='images/preview (2).png' alt="" className='slider-img' />
+            <img src='/images/preview (2).png' alt="" className='slider-img' />
           </div>
         </SwiperSlide>
         <SwiperSlide className='slide'>
           <div className="slider-img-container">
-            <img src='images/preview (5).png' alt="" className='slider-img' />
+            <img src='/images/preview (5).png' alt="" className='slider-img' />
           </div>
           <div className="land-text">
               <h5>
@@ -49,12 +49,12 @@ const Items = () => {
             <button>explore</button>
           </div>
           <div className="slider-img-container">
-          <img src='images/preview (3).png' alt="" className='slider-img' />
+          <img src='/images/preview (3).png' alt="" className='slider-img' />
           </div>
         </SwiperSlide >
         <SwiperSlide className='slide'>
           <div className="slider-img-container">
-              <img src='images/preview (1).png' alt="" className='slider-img' />
+              <img src='/images/preview (1).png' alt="" className='slider-img' />
             </div>
             <div className="land-text">
                 <h5>
@@ -73,7 +73,7 @@ const Items = () => {
             <button>explore</button>
           </div>
           <div className="slider-img-container">
-            <img src='images/preview (4).png' alt="" className='slider-img' />
+            <img src='/images/preview (4).png' alt="" className='slider-img' />
           </div>
         </SwiperSlide >
       </Swiper>

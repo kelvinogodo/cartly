@@ -22,10 +22,10 @@ const Contact = () => {
                 <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Odit temporibus obcaecati rem, reiciendis itaque repellendus. Asperiores doloribus earum dignissimos tempora?</p>
                 <button className="visit-blog-btn">visit blog</button>
             </div>
-            <img src="images/designer-mens-suits-500x500-removebg-preview.png" alt="" className="advert-img" />
+            <img src="/images/designer-mens-suits-500x500-removebg-preview.png" alt="" className="advert-img" />
         </div>
         <div className="form-section">
-            <img src="images/preview (2).png" alt="" className="contact-img" />
+            <img src="/images/preview (2).png" alt="" className="contact-img" />
             <form className="contact-form" onSubmit={onSubmit}>
                 <h5 className="contact-form-header">
                     contact us
