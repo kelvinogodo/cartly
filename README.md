@@ -49,7 +49,7 @@ The schema lives in `supabase/migrations/`. Since this project doesn't use the S
 
 ```bash
 npm run db:migrate   # applies pending supabase/migrations/*.sql, tracked in schema_migrations
-npm run images:build # normalizes source photos into public/images/{products,editorial}
+npm run images:build # normalizes assets/source-photos into public/images/{products,editorial}
 npm run db:seed      # loads the curated demo catalog (scripts/catalog.ts); idempotent
 ```
 

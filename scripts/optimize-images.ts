@@ -1,7 +1,8 @@
 // Builds the web-ready images the storefront actually serves:
 //   public/images/products/<slug>.jpg     800x1000 (4:5), product trimmed + centred on white
 //   public/images/editorial/*.jpg         hero / category-tile / auth / story photography
-// Source assets in public/images stay untouched. Run: npm run images:build
+// Originals live in assets/source-photos (kept out of public/ so they aren't deployed).
+// Run: npm run images:build
 import { mkdirSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -10,6 +11,7 @@ import { categories, editorial, products } from './catalog';
 import { slugify } from '../src/lib/slug';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const sourceDir = path.resolve(__dirname, '../assets/source-photos');
 const imagesDir = path.resolve(__dirname, '../public/images');
 const productsDir = path.join(imagesDir, 'products');
 const editorialDir = path.join(imagesDir, 'editorial');
@@ -21,7 +23,7 @@ const CANVAS_H = 1000;
 
 async function normalizeProduct(sourceFile: string, outFile: string, liftBackdrop?: number) {
   // 1. flatten transparency onto white
-  const flat = await sharp(path.join(imagesDir, sourceFile)).rotate().flatten({ background: '#ffffff' }).toBuffer();
+  const flat = await sharp(path.join(sourceDir, sourceFile)).rotate().flatten({ background: '#ffffff' }).toBuffer();
 
   // 2. some studio shots sit on a faint grey/cream backdrop rather than pure
   //    white. Sample the corner and lift that backdrop to white so every card
@@ -58,7 +60,7 @@ async function normalizeProduct(sourceFile: string, outFile: string, liftBackdro
 }
 
 async function cover(sourceFile: string, outFile: string, width: number, height: number) {
-  await sharp(path.join(imagesDir, sourceFile))
+  await sharp(path.join(sourceDir, sourceFile))
     .rotate()
     .resize(width, height, { fit: 'cover', position: sharp.strategy.attention })
     .jpeg({ quality: 78, mozjpeg: true, progressive: true })
