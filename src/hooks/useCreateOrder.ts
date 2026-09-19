@@ -2,7 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabaseClient';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from './useCart';
-import { computeCartTotal } from '../lib/cart';
 
 interface ShippingDetails {
   name: string;
@@ -10,6 +9,11 @@ interface ShippingDetails {
   phone: string;
 }
 
+/**
+ * Places an order through the `place_order` database function. Only product ids
+ * and quantities are sent — prices, totals and stock are all resolved on the
+ * server inside one transaction, so a tampered client can't change what it pays.
+ */
 export function useCreateOrder() {
   const { user } = useAuth();
   const { items, clear } = useCart();
@@ -18,39 +22,23 @@ export function useCreateOrder() {
   return useMutation({
     mutationFn: async (shipping: ShippingDetails) => {
       if (!user) throw new Error('Must be signed in to place an order');
-      if (items.length === 0) throw new Error('Cart is empty');
+      if (items.length === 0) throw new Error('Your bag is empty');
 
-      const total = computeCartTotal(items);
-
-      const { data: order, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          user_id: user.id,
-          total,
-          shipping_name: shipping.name,
-          shipping_address: shipping.address,
-          shipping_phone: shipping.phone,
-        })
-        .select()
-        .single();
-      if (orderError) throw orderError;
-
-      const orderItems = items.map((item) => ({
-        order_id: order.id,
-        product_id: item.productId,
-        product_name: item.product.name,
-        unit_price: item.product.price,
-        quantity: item.quantity,
-        subtotal: item.product.price * item.quantity,
-      }));
-
-      const { error: itemsError } = await supabase.from('order_items').insert(orderItems);
-      if (itemsError) throw itemsError;
-
+      const { data, error } = await supabase.rpc('place_order', {
+        p_shipping_name: shipping.name,
+        p_shipping_address: shipping.address,
+        p_shipping_phone: shipping.phone,
+        p_items: items.map((item) => ({ product_id: item.productId, quantity: item.quantity })),
+      });
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    onSuccess: () => {
       clear();
-      queryClient.invalidateQueries({ queryKey: ['orders', user.id] });
-
-      return order;
+      // Stock changed, so cached product data (cards, detail pages) is stale.
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['product'] });
+      if (user) queryClient.invalidateQueries({ queryKey: ['orders', user.id] });
     },
   });
 }

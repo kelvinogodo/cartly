@@ -310,6 +310,15 @@ export interface Database {
         Args: Record<string, never>;
         Returns: boolean;
       };
+      place_order: {
+        Args: {
+          p_shipping_name: string;
+          p_shipping_address: string;
+          p_shipping_phone: string;
+          p_items: { product_id: string; quantity: number }[];
+        };
+        Returns: Database['public']['Tables']['orders']['Row'];
+      };
     };
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
