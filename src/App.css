@@ -785,3 +785,15 @@ a.pcard-quick { text-decoration: none; }
 .photo-actions { position: absolute; right: 4px; bottom: 4px; display: flex; gap: 4px; }
 .photo-actions button { width: 26px; height: 26px; display: grid; place-items: center; border: 0; background: rgba(255,255,255,.92); color: var(--text); cursor: pointer; }
 .photo-actions button:hover { color: var(--accent); }
+
+/* Honeypot: off-screen, not display:none (some bots skip hidden fields) */
+.hp-field { position: absolute; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; }
+/* Admin error log */
+.error-item { border: 1px solid var(--border); background: #fff; }
+.error-item summary { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding: 14px 16px; cursor: pointer; font-size: 13px; }
+.error-msg { font-weight: 500; word-break: break-word; }
+.error-when { color: var(--text-faint); font-size: 12px; }
+.error-item dl { display: grid; grid-template-columns: 70px 1fr; gap: 6px 12px; padding: 0 16px 8px; font-size: 12px; color: var(--text-muted); }
+.error-item dt { color: var(--text-faint); }
+.error-item dd { margin: 0; word-break: break-all; }
+.error-item pre { margin: 0; padding: 12px 16px 16px; font-size: 11px; line-height: 1.5; overflow-x: auto; color: var(--text-muted); border-top: 1px solid var(--border); }

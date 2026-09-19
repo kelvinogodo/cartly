@@ -30,6 +30,7 @@ import { SiteLayout } from './components/SiteLayout'
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const AdminProductList = lazy(() => import('./pages/admin/AdminProductList'))
 const AdminOrders = lazy(() => import('./pages/admin/AdminOrders'))
+const AdminErrors = lazy(() => import('./pages/admin/AdminErrors'))
 const AdminCategories = lazy(() => import('./pages/admin/AdminCategories'))
 const AdminProductNew = lazy(() => import('./pages/admin/AdminProductNew'))
 const AdminProductEdit = lazy(() => import('./pages/admin/AdminProductEdit'))
@@ -62,6 +63,7 @@ function App() {
                           <Route path="/admin" element={<ProtectedRoute role="admin"><AdminDashboard /></ProtectedRoute>} />
                           <Route path="/admin/products" element={<ProtectedRoute role="admin"><AdminProductList /></ProtectedRoute>} />
                           <Route path="/admin/orders" element={<ProtectedRoute role="admin"><AdminOrders /></ProtectedRoute>} />
+                          <Route path="/admin/errors" element={<ProtectedRoute role="admin"><AdminErrors /></ProtectedRoute>} />
                           <Route path="/admin/categories" element={<ProtectedRoute role="admin"><AdminCategories /></ProtectedRoute>} />
                           <Route path="/admin/products/new" element={<ProtectedRoute role="admin"><AdminProductNew /></ProtectedRoute>} />
                           <Route path="/admin/products/:id/edit" element={<ProtectedRoute role="admin"><AdminProductEdit /></ProtectedRoute>} />

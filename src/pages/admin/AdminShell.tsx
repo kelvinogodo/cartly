@@ -6,6 +6,7 @@ const TABS = [
   { to: '/admin/products', label: 'Products', end: false },
   { to: '/admin/orders', label: 'Orders', end: false },
   { to: '/admin/categories', label: 'Categories', end: false },
+  { to: '/admin/errors', label: 'Errors', end: false },
 ]
 
 /** Shared chrome for every admin screen: badge + section tabs. */

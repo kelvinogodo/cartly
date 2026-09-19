@@ -6,9 +6,11 @@ import { useAuth } from '../context/AuthContext'
 import { useUIContext } from '../context/UIContext'
 import { useScrollToSection } from '../hooks/useScrollToSection'
 import { LEGAL_DOCS } from '../content/legal'
+import { friendlyFormError } from '../lib/errors'
 
 const Footer = () => {
   const [email, setEmail] = useState('')
+  const [honeypot, setHoneypot] = useState('')
   const subscribe = useSubscribeNewsletter()
   const { data: categories } = useCategories()
   const { user } = useAuth()
@@ -17,7 +19,7 @@ const Footer = () => {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
-    subscribe.mutate(email, { onSuccess: () => setEmail('') })
+    subscribe.mutate({ email, honeypot }, { onSuccess: () => setEmail('') })
   }
 
   const alreadySubscribed = subscribe.isError && subscribe.error?.code === '23505'
@@ -59,11 +61,12 @@ const Footer = () => {
         <form onSubmit={onSubmit}>
           <label className="visually-hidden" htmlFor="newsletter-email">Email address</label>
           <input id="newsletter-email" type="email" placeholder="Your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input className="hp-field" type="text" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" value={honeypot} onChange={(e) => setHoneypot(e.target.value)} />
           <button type="submit" disabled={subscribe.isPending}>{subscribe.isPending ? '…' : 'Join →'}</button>
         </form>
         {subscribe.isSuccess && <small className="footer-note">You're on the list — thank you.</small>}
         {alreadySubscribed && <small className="footer-note">That email is already subscribed.</small>}
-        {subscribe.isError && !alreadySubscribed && <small className="footer-note">Couldn't subscribe — please try again.</small>}
+        {subscribe.isError && !alreadySubscribed && <small className="footer-note">{friendlyFormError(subscribe.error, "Couldn't subscribe — please try again.")}</small>}
       </div>
     </footer>
   )
