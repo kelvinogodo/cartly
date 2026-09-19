@@ -1,24 +1,21 @@
 import { useCallback } from 'react';
 import { useCart } from './useCart';
 import { useToast } from '../context/ToastContext';
+import { useCartDrawer } from '../context/CartDrawerContext';
 import type { OptionSelection, Product } from '../types/domain';
 
 /** Adds to the bag and gives the shopper immediate, honest feedback about what happened. */
 export function useAddToBag() {
   const { addItem } = useCart();
   const toast = useToast();
+  const { open: openDrawer } = useCartDrawer();
 
   return useCallback(
     (product: Product, quantity = 1, chosen: Partial<OptionSelection> = {}) => {
       const result = addItem(product, quantity, chosen);
       if (result === 'added') {
-        toast.show({
-          id: `bag-${product.id}`,
-          title: 'Added to bag',
-          description: [product.name, chosen.size && `Size ${chosen.size}`].filter(Boolean).join(' · '),
-          image: product.image_path,
-          action: { label: 'View bag', to: '/cart' },
-        });
+        // the slide-over bag is the confirmation
+        openDrawer();
       } else if (result === 'needs_option') {
         toast.show({
           id: `bag-${product.id}`,
@@ -38,6 +35,6 @@ export function useAddToBag() {
       }
       return result;
     },
-    [addItem, toast]
+    [addItem, toast, openDrawer]
   );
 }

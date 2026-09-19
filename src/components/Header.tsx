@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { useCartDrawer } from '../context/CartDrawerContext'
 import { AnimatePresence, motion } from 'framer-motion'
 import { FiHeart, FiMenu, FiSearch, FiShoppingBag, FiUser, FiX } from 'react-icons/fi'
 import SearchItems from './SearchItems'
@@ -39,6 +40,8 @@ const Header = () => {
   const { data: categories } = useCategories()
   const { categoryFilter, setCategoryFilter } = useUIContext()
   const location = useLocation()
+  const { open: openDrawer } = useCartDrawer()
+  const onBagPage = location.pathname === '/cart' || location.pathname === '/checkout'
   const scrollToSection = useScrollToSection()
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
@@ -137,10 +140,17 @@ const Header = () => {
               )}
             </div>
 
-            <Link to="/cart" className="header-icon-btn" aria-label={`Bag, ${bagCount} items`}>
-              <FiShoppingBag size={19} />
-              <CountBadge value={bagCount} />
-            </Link>
+            {onBagPage ? (
+              <Link to="/cart" className="header-icon-btn" aria-label={`Bag, ${bagCount} items`}>
+                <FiShoppingBag size={19} />
+                <CountBadge value={bagCount} />
+              </Link>
+            ) : (
+              <button className="header-icon-btn" onClick={openDrawer} aria-label={`Bag, ${bagCount} items`} aria-haspopup="dialog">
+                <FiShoppingBag size={19} />
+                <CountBadge value={bagCount} />
+              </button>
+            )}
           </div>
         </div>
 

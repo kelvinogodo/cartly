@@ -12,6 +12,7 @@ import Wishlist from './pages/Wishlist'
 import NotFound from './pages/NotFound'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import { CartDrawerProvider } from './context/CartDrawerContext'
 import LegalPage from './pages/LegalPage'
 import { LEGAL_DOCS } from './content/legal'
 import ForgotPassword from './pages/ForgotPassword'
@@ -47,6 +48,7 @@ function App() {
           <ToastProvider>
             <CartProvider>
               <WishlistProvider>
+                <CartDrawerProvider>
                 <UIProvider>
                   <MotionConfig reducedMotion="user">
                     <ScrollToTop />
@@ -77,6 +79,7 @@ function App() {
                     </Suspense>
                   </MotionConfig>
                 </UIProvider>
+                </CartDrawerProvider>
               </WishlistProvider>
             </CartProvider>
           </ToastProvider>

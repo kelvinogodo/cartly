@@ -4,14 +4,15 @@ A full-stack e-commerce storefront — browse and search a real product catalog,
 
 ## Features
 
-- **Product catalog** — category filtering and live search, backed by real Supabase queries (not client-side array filtering).
-- **Product detail pages** — shareable `/products/:slug` routes.
-- **Wishlist** — works for guests (`localStorage`) and signed-in users (`wishlist_items`), merged on login; dedicated `/wishlist` page.
-- **Auth** — email/password sign up and login via Supabase Auth, with email confirmation and role-based access (`customer` / `admin`).
-- **Cart** — one shared bag for the whole app: `localStorage` for guests, a `cart_items` table for signed-in users (optimistic updates), merged automatically on login. Stock-aware (never exceeds available units).
-- **Checkout & orders** — turns the cart into a real order (`orders` + `order_items`, price/name snapshotted at purchase time); order history at `/account`. Order placement only — no payment gateway is integrated.
-- **Admin dashboard** (`/admin`, role-gated) — create, edit, and delete products, with real image upload to Supabase Storage.
-- **Contact form & newsletter signup** — write to real `inquiries` / `newsletter_subscribers` tables.
+- **Catalog** — category filter, debounced search, sorting, price range and pagination, all executed in Postgres (not client-side array filtering).
+- **Product pages** — shareable `/products/:slug`, photo gallery, real size/colour selection (options are recorded on the bag line and the order), related products. Product URLs are server-rendered with Open Graph / JSON-LD tags (`api/product-meta.ts`) so link previews work; `/sitemap.xml` and `robots.txt` are provided.
+- **Bag** — one shared bag for the whole app: `localStorage` for guests, a `cart_items` table for signed-in users (optimistic updates), merged on login. Stock-aware; opens as a slide-over drawer from the header and after adding, with a full `/cart` page too.
+- **Wishlist** — guests (`localStorage`) and signed-in users (`wishlist_items`), merged on login.
+- **Auth** — email/password with confirmation, forgot/reset password, resend confirmation, role-based access (`customer` / `admin`).
+- **Checkout & orders** — orders are placed by the `place_order` database function: totals come from real prices, stock is checked and decremented, options are validated, and everything is one transaction (clients cannot insert orders directly). Order history at `/account`. No payment gateway (demo).
+- **Admin** (`/admin`, role-gated) — overview with low-stock list, product CRUD with multi-photo upload to Storage (files are removed when replaced or deleted), order management (guarded status transitions, cancelling restocks), category management, and a client error log.
+- **Help pages** — shipping, returns, privacy and terms, written to describe what this demo store actually does.
+- **Hardening** — DB-level rate limits and constraints on the contact/newsletter forms, honeypot fields, error reporting to `client_errors`, GitHub Actions CI (typecheck, tests, build).
 
 ## Tech stack
 
@@ -73,11 +74,13 @@ src/
   App.tsx, main.tsx        # routes, providers, entry point
   context/                 # Auth, Cart, Wishlist, Toast, UI (filters) providers
   components/SiteLayout    # shared header/footer + animated page transitions
-  hooks/                   # TanStack Query hooks — products, cart, orders, wishlist, admin mutations
+  hooks/                   # TanStack Query hooks — catalog, cart, orders, wishlist, admin mutations
   lib/                     # pure/utility modules: cart math, slugs, image URLs, Storage upload, Supabase client
   types/                   # generated-style Database type + hand-written domain aliases
   pages/                   # route components, including pages/admin/
   components/              # presentational + shared components
+api/                        # Vercel functions: product meta tags (SEO), sitemap
+assets/source-photos/       # original photos (not deployed) — input to images:build
 scripts/
   catalog.ts                # single source of truth for the demo catalog
   optimize-images.ts        # builds uniform 4:5 product images + editorial crops (sharp)
@@ -88,9 +91,12 @@ supabase/
 
 ## Known limitations
 
-- No payment gateway — checkout creates an order record only (by design, not yet implemented).
-- No product variants (a product has one size/color, not a matrix of stocked combinations).
-- No email notifications for orders, inquiries, or newsletter signups (the tables exist; sending mail would need a Supabase Edge Function or similar).
+- No payment gateway — checkout creates an order record only (by design).
+- Size/colour are options on a product, and all sizes share one stock pool; a per-variant stock matrix would be the next step.
+- No email notifications for orders or inquiries (would need an Edge Function or similar).
+- Supabase Auth → URL Configuration must list the deployed site URL (and `/reset-password`) as allowed redirects, or password-reset and confirmation links fall back to the default Site URL.
+- The default Open Graph tags in `index.html` hard-code the production origin (images must be absolute); update it if the domain changes.
+- Error monitoring is a small built-in log, not a hosted tracker.
 
 ## License
 

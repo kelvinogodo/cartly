@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useLocation, useOutlet } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
+import { CartDrawer } from './CartDrawer'
 
 /**
  * Shared chrome for store pages. Header/footer stay mounted across
@@ -28,6 +29,7 @@ export function SiteLayout() {
         </motion.div>
       </AnimatePresence>
       <Footer />
+      <CartDrawer />
     </>
   )
 }
