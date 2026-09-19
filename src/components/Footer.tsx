@@ -1,16 +1,18 @@
 import { useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { FiInstagram, FiFacebook, FiTwitter, FiMail } from 'react-icons/fi'
+import { Link } from 'react-router-dom'
 import { useSubscribeNewsletter } from '../hooks/useSubscribeNewsletter'
 import { useCategories } from '../hooks/useCategories'
+import { useAuth } from '../context/AuthContext'
 import { useUIContext } from '../context/UIContext'
+import { useScrollToSection } from '../hooks/useScrollToSection'
 
 const Footer = () => {
   const [email, setEmail] = useState('')
   const subscribe = useSubscribeNewsletter()
   const { data: categories } = useCategories()
+  const { user } = useAuth()
   const { setCategoryFilter } = useUIContext()
-  const navigate = useNavigate()
+  const scrollToSection = useScrollToSection()
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -21,7 +23,11 @@ const Footer = () => {
 
   const goToCategory = (categoryId: string) => {
     setCategoryFilter(categoryId)
-    navigate('/')
+    scrollToSection('collection')
+  }
+
+  const goToContact = () => {
+    scrollToSection('contact')
   }
 
   return (
@@ -30,34 +36,32 @@ const Footer = () => {
         <div className="footer-col">
           <div className="footer-col-title">Shop</div>
           {categories?.map((category) => (
-            <button key={category.id} onClick={() => goToCategory(category.id)} style={{ background: 'none', border: 'none', padding: 0, textAlign: 'left', font: 'inherit', color: 'inherit' }}>
-              {category.name}
-            </button>
+            <button key={category.id} onClick={() => goToCategory(category.id)}>{category.name}</button>
           ))}
         </div>
         <div className="footer-col">
-          <div className="footer-col-title">Cartly</div>
-          <div>Our story</div>
-          <div>Returns</div>
-          <div className="footer-social" style={{ marginTop: 8 }}>
-            <a href="#" aria-label="Instagram"><FiInstagram size={16} /></a>
-            <a href="#" aria-label="Facebook"><FiFacebook size={16} /></a>
-            <a href="#" aria-label="Twitter"><FiTwitter size={16} /></a>
-          </div>
+          <div className="footer-col-title">Account</div>
+          {user ? <Link to="/account">My orders</Link> : <Link to="/login">Sign in</Link>}
+          <Link to="/wishlist">Wishlist</Link>
+          <Link to="/cart">Bag</Link>
+        </div>
+        <div className="footer-col">
+          <div className="footer-col-title">Help</div>
+          <button onClick={goToContact}>Contact us</button>
         </div>
       </div>
 
       <div className="footer-newsletter">
-        <div className="serif" style={{ fontSize: 16, color: '#F7F5F1' }}>The Autumn Journal</div>
-        <div className="footer-note">A note to your inbox, now and then — new arrivals, not noise.</div>
+        <div className="serif" style={{ fontSize: 18, color: '#F7F5F1' }}>New arrivals, in your inbox</div>
+        <div className="footer-note">Occasional notes on new pieces. No noise.</div>
         <form onSubmit={onSubmit}>
-          <FiMail size={16} style={{ flexShrink: 0, alignSelf: 'center' }} />
-          <input type="email" placeholder="Your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <button type="submit" disabled={subscribe.isPending}>{subscribe.isPending ? '...' : 'Join →'}</button>
+          <label className="visually-hidden" htmlFor="newsletter-email">Email address</label>
+          <input id="newsletter-email" type="email" placeholder="Your email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <button type="submit" disabled={subscribe.isPending}>{subscribe.isPending ? '…' : 'Join →'}</button>
         </form>
-        {subscribe.isSuccess && <small className="footer-note">Subscribed!</small>}
-        {alreadySubscribed && <small className="footer-note">Already subscribed.</small>}
-        {subscribe.isError && !alreadySubscribed && <small className="footer-note">Couldn't subscribe, try again.</small>}
+        {subscribe.isSuccess && <small className="footer-note">You're on the list — thank you.</small>}
+        {alreadySubscribed && <small className="footer-note">That email is already subscribed.</small>}
+        {subscribe.isError && !alreadySubscribed && <small className="footer-note">Couldn't subscribe — please try again.</small>}
       </div>
     </footer>
   )

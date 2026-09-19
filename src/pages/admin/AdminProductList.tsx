@@ -1,9 +1,8 @@
 import { Link } from 'react-router-dom'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
 import { useProducts } from '../../hooks/useProducts'
 import { useDeleteProduct } from '../../hooks/useProductMutations'
 import { getProductImageUrl } from '../../lib/images'
+import { formatPrice } from '../../lib/format'
 
 const AdminProductList = () => {
   const { data: products, isLoading, error } = useProducts()
@@ -17,7 +16,6 @@ const AdminProductList = () => {
 
   return (
     <div>
-      <Header />
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
           <span className="logo">Cartly</span>
@@ -49,7 +47,7 @@ const AdminProductList = () => {
               <img src={getProductImageUrl(product.image_path)} alt={product.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
             <div className="admin-row-name">{product.name}</div>
-            <div className="admin-row-price serif" style={{ width: 90 }}>${product.price}</div>
+            <div className="admin-row-price serif" style={{ width: 90 }}>{formatPrice(product.price)}</div>
             <div style={{ width: 70, fontSize: 13 }}>{product.stock}</div>
             <div style={{ width: 90, fontSize: 13, color: product.is_featured ? 'var(--accent)' : 'var(--text-faint)' }}>{product.is_featured ? 'Yes' : 'No'}</div>
             <div className="admin-row-actions">
@@ -59,7 +57,6 @@ const AdminProductList = () => {
           </div>
         ))}
       </section>
-      <Footer />
     </div>
   )
 }

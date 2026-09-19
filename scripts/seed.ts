@@ -1,16 +1,17 @@
-// One-off seed script — NOT imported by the app. Loads the 20 demo products
-// that used to be hardcoded in src/Context.jsx into the real `products` table.
-// Run with: npx tsx scripts/seed.ts
+// Loads the curated demo catalog (scripts/catalog.ts) into Supabase. Idempotent:
+// safe to re-run. Run `npm run images:build` first so the referenced images exist.
+// Run with: npm run db:seed
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { config } from 'dotenv';
 import { createClient } from '@supabase/supabase-js';
 import ws from 'ws';
-import { slugify } from '../src/lib/slug';
 import type { Database } from '../src/types/supabase';
+import { slugify } from '../src/lib/slug';
+import { categories, products } from './catalog';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-config({ path: path.resolve(__dirname, '../.env.local') });
+config({ path: path.resolve(__dirname, '../.env.local'), quiet: true });
 
 const supabaseUrl = process.env.SUPABASE_URL;
 const secretKey = process.env.SUPABASE_SECRET_KEY;
@@ -26,62 +27,90 @@ const supabase = createClient<Database>(supabaseUrl, secretKey, {
   realtime: { transport: ws as never },
 });
 
-// The literal array formerly in src/Context.jsx (`prize`/`finalPrize`/`liked`
-// dropped — `finalPrize` never meaningfully diverged from `prize` in the old
-// UI, and `liked`/stock are now user- and admin-owned state respectively).
-const legacyItems = [
-  { id: 1, image: 'watch-removebg-preview.png', name: '45 caret-gold rolex watch', prize: 870, category: 'men', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 2, image: 'oficial-suit (3).jpg', name: 'italian suit', prize: 550, category: 'men', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 3, image: 'shirt.png', name: 'vintage t-shirt', prize: 150, category: 'men', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 4, image: 'casual-shoes (2).jpg', name: 'sneakers', prize: 200, category: 'shoe', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 5, image: 'oficial-suit (3).jpg', name: 'blue sneakers', prize: 3200, category: 'men', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 6, image: 'handbag (1).jpg', name: 'co-operate shoe', prize: 269, category: 'handbag', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 7, image: 'coperate-suit.jpg', name: 'jamaican regge shoe', prize: 436, category: 'men', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 8, image: 'sneaker3.png', name: 'jamaican regge shoe', prize: 609, category: 'shoe', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 9, image: 'women-dress (4).jpg', name: 'jamaican regge shoe', prize: 234, category: 'women', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 10, image: 'mens-suit.jpg', name: 'jamaican regge shoe', prize: 3700, category: 'men', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 11, image: 'beautiful-handbag.png', name: 'jamaican regge shoe', prize: 2000, category: 'handbag', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 12, image: 'women-dress (1).jpg', name: 'jamaican regge shoe', prize: 2008, category: 'women', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 13, image: 'women-dress (2).jpg', name: 'jamaican regge shoe', prize: 2077, category: 'women', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 14, image: 'women-dress (4).jpg', name: 'jamaican regge shoe', prize: 4300, category: 'women', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 15, image: 'pexels-lazaro-rodriguez-jr-6911546.jpg', name: 'jamaican regge shoe', prize: 1290, category: 'shoe', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 16, image: 'can.png', name: 'jamaican regge shoe', prize: 2098, category: 'shoe', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 17, image: 'casual-shoes (1).jpg', name: 'jamaican regge shoe', prize: 9700, category: 'shoe', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 18, image: 'sneaker2.png', name: 'jamaican regge shoe', prize: 9070, category: 'shoe', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 19, image: 'women-dress (6).jpg', name: 'jamaican regge shoe', prize: 9820, category: 'women', size: '63', color: 'black', madeIn: 'tanzania' },
-  { id: 20, image: 'women-dress (3).jpg', name: 'jamaican regge shoe', prize: 2709, category: 'women', size: '63', color: 'black', madeIn: 'tanzania' },
-];
+// Category slugs from the very first seed, renamed in place so ids are kept.
+const renamedCategories: Record<string, string> = { shoe: 'shoes', handbag: 'accessories' };
 
-// A handful marked featured so `is_featured`-driven "popular" sections have content.
-const featuredIds = new Set([1, 2, 6, 9, 11, 16]);
+async function seedCategories() {
+  for (const [oldSlug, newSlug] of Object.entries(renamedCategories)) {
+    const target = categories.find((c) => c.slug === newSlug);
+    if (!target) continue;
+    const { error } = await supabase
+      .from('categories')
+      .update({ slug: target.slug, name: target.name })
+      .eq('slug', oldSlug);
+    if (error) throw error;
+  }
+
+  const rows = categories.map((c) => ({
+    slug: c.slug,
+    name: c.name,
+    sort_order: c.sortOrder,
+    image_path: `/images/editorial/tile-${c.slug}.jpg`,
+  }));
+  const { error } = await supabase.from('categories').upsert(rows, { onConflict: 'slug' });
+  if (error) throw error;
+
+  const { data, error: readError } = await supabase.from('categories').select('id, slug');
+  if (readError) throw readError;
+  return new Map(data.map((c) => [c.slug, c.id]));
+}
+
+// The storefront lists products newest-first. Interleave categories (women, men,
+// shoes, accessories, women, men, ...) and stamp created_at accordingly so the
+// unfiltered "All" grid reads as a varied mix rather than four blocks.
+function interleaveByCategory<T extends { category: string }>(items: T[]): T[] {
+  const queues = categories.map((c) => items.filter((item) => item.category === c.slug));
+  const result: T[] = [];
+  while (queues.some((queue) => queue.length > 0)) {
+    for (const queue of queues) {
+      const next = queue.shift();
+      if (next) result.push(next);
+    }
+  }
+  return result;
+}
+
+async function seedProducts(categoryIdBySlug: Map<string, string>) {
+  const now = Date.now();
+  const rows: Database['public']['Tables']['products']['Insert'][] = interleaveByCategory(products).map((p, index) => {
+    const slug = slugify(p.name);
+    return {
+      created_at: new Date(now - index * 1000).toISOString(),
+      slug,
+      name: p.name,
+      description: p.description,
+      price: p.price,
+      stock: p.stock,
+      category_id: categoryIdBySlug.get(p.category) ?? null,
+      image_path: `/images/products/${slug}.jpg`,
+      size: p.size,
+      color: p.color,
+      made_in: p.madeIn,
+      is_featured: p.featured ?? false,
+    };
+  });
+
+  const { error } = await supabase.from('products').upsert(rows, { onConflict: 'slug' });
+  if (error) throw error;
+
+  // Remove the original placeholder rows (slugs like "jamaican-regge-shoe-7").
+  // Anything an admin created through the UI has no numeric suffix and is kept.
+  const keep = new Set(rows.map((r) => r.slug));
+  const { data: existing, error: readError } = await supabase.from('products').select('slug');
+  if (readError) throw readError;
+  const stale = existing.map((r) => r.slug).filter((slug) => !keep.has(slug) && /-\d+$/.test(slug));
+  if (stale.length > 0) {
+    const { error: deleteError } = await supabase.from('products').delete().in('slug', stale);
+    if (deleteError) throw deleteError;
+  }
+
+  return { upserted: rows.length, removed: stale.length };
+}
 
 async function main() {
-  const { data: categories, error: categoriesError } = await supabase
-    .from('categories')
-    .select('id, slug');
-  if (categoriesError) throw categoriesError;
-
-  const categoryIdBySlug = new Map(categories.map((c) => [c.slug, c.id]));
-
-  const rows: Database['public']['Tables']['products']['Insert'][] = legacyItems.map((item) => ({
-    slug: `${slugify(item.name)}-${item.id}`,
-    name: item.name,
-    price: item.prize,
-    stock: 25,
-    category_id: categoryIdBySlug.get(item.category) ?? null,
-    image_path: `/images/${item.image}`,
-    size: item.size,
-    color: item.color,
-    made_in: item.madeIn,
-    is_featured: featuredIds.has(item.id),
-  }));
-
-  const { error: insertError, count } = await supabase
-    .from('products')
-    .upsert(rows, { onConflict: 'slug', count: 'exact' });
-  if (insertError) throw insertError;
-
-  console.log(`Seeded ${count ?? rows.length} products.`);
+  const categoryIdBySlug = await seedCategories();
+  const result = await seedProducts(categoryIdBySlug);
+  console.log(`Seeded ${categories.length} categories and ${result.upserted} products; removed ${result.removed} placeholder rows.`);
 }
 
 main().catch((err) => {

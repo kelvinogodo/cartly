@@ -25,6 +25,7 @@
     "dotenv": "^17.4.2",
     "jsdom": "^29.1.1",
     "pg": "^8.23.0",
+    "sharp": "^0.35.4",
     "tsx": "^4.23.13",
     "typescript": "^7.0.2",
     "vite": "^8.2.2",
@@ -39,6 +40,7 @@
     "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
+    "images:build": "tsx scripts/optimize-images.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

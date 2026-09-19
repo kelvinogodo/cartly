@@ -1,36 +1,37 @@
-import { useNavigate } from 'react-router-dom'
+import { FiArrowRight } from 'react-icons/fi'
 import { useCategories } from '../hooks/useCategories'
 import { useUIContext } from '../context/UIContext'
+import { Reveal } from './ui/Reveal'
+import { SectionHead } from './ui/SectionHead'
 
 const CategoryTiles = () => {
   const { data: categories } = useCategories()
   const { setCategoryFilter } = useUIContext()
-  const navigate = useNavigate()
 
   if (!categories || categories.length === 0) return null
 
-  const goToCategory = (categoryId: string) => {
+  const shop = (categoryId: string) => {
     setCategoryFilter(categoryId)
-    navigate('/')
-    document.getElementById('shop-the-collection')?.scrollIntoView({ behavior: 'smooth' })
+    document.getElementById('collection')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <>
-      <h2 className="section-heading serif">Shop by category</h2>
-      <div className="category-tiles">
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            className="category-tile"
-            onClick={() => goToCategory(category.id)}
-            style={{ border: 'none', textAlign: 'left', font: 'inherit' }}
-          >
-            <span className="category-tile-label serif">{category.name}</span>
-          </button>
+    <section className="section" aria-labelledby="categories-title">
+      <SectionHead id="categories-title" eyebrow="Browse" title="Shop by category" />
+      <div className="ctiles">
+        {categories.map((category, index) => (
+          <Reveal key={category.id} delay={index * 0.08}>
+            <button className="ctile" onClick={() => shop(category.id)} aria-label={`Shop ${category.name}`}>
+              {category.image_path && <img src={category.image_path} alt="" loading="lazy" decoding="async" width={720} height={900} />}
+              <span className="ctile-label">
+                <span>{category.name}</span>
+                <FiArrowRight className="ctile-arrow" size={20} />
+              </span>
+            </button>
+          </Reveal>
         ))}
       </div>
-    </>
+    </section>
   )
 }
 

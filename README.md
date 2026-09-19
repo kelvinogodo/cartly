@@ -6,9 +6,9 @@ A full-stack e-commerce storefront — browse and search a real product catalog,
 
 - **Product catalog** — category filtering and live search, backed by real Supabase queries (not client-side array filtering).
 - **Product detail pages** — shareable `/products/:slug` routes.
-- **Wishlist** — persists per signed-in user (`wishlist_items`), not lost on re-filter.
+- **Wishlist** — works for guests (`localStorage`) and signed-in users (`wishlist_items`), merged on login; dedicated `/wishlist` page.
 - **Auth** — email/password sign up and login via Supabase Auth, with email confirmation and role-based access (`customer` / `admin`).
-- **Cart** — persists to `localStorage` for guests and to a `cart_items` table for signed-in users, merging automatically on login.
+- **Cart** — one shared bag for the whole app: `localStorage` for guests, a `cart_items` table for signed-in users (optimistic updates), merged automatically on login. Stock-aware (never exceeds available units).
 - **Checkout & orders** — turns the cart into a real order (`orders` + `order_items`, price/name snapshotted at purchase time); order history at `/account`. Order placement only — no payment gateway is integrated.
 - **Admin dashboard** (`/admin`, role-gated) — create, edit, and delete products, with real image upload to Supabase Storage.
 - **Contact form & newsletter signup** — write to real `inquiries` / `newsletter_subscribers` tables.
@@ -39,6 +39,7 @@ Open the local URL Vite prints (defaults to [http://localhost:5173](http://local
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Browser | Safe to expose — access is enforced by RLS, not by keeping this secret |
 | `SUPABASE_SECRET_KEY` | Local scripts only (`scripts/seed.ts`) | **Never** prefix this with `VITE_` — it bypasses RLS entirely |
 | `CARTLY_DB_PASSWORD` | Local scripts only (`scripts/migrate.ts`) | Direct Postgres connection for running migrations |
+| `CARTLY_DB_HOST` | Local scripts only (optional) | Session-pooler host; required on IPv4-only networks because the direct DB host is IPv6-only |
 
 `.env.local` is gitignored and never reaches a deployed build. On a host like Vercel, `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` must be added separately as that platform's environment variables (and the deploy re-run) — otherwise the app fails fast on startup rather than running with a broken client (see `src/lib/supabaseClient.ts`).
 
@@ -47,8 +48,9 @@ Open the local URL Vite prints (defaults to [http://localhost:5173](http://local
 The schema lives in `supabase/migrations/`. Since this project doesn't use the Supabase CLI's Docker-dependent workflow, migrations run via a direct Postgres connection instead:
 
 ```bash
-npm run db:migrate   # applies supabase/migrations/*.sql, in order
-npm run db:seed      # loads demo product data
+npm run db:migrate   # applies pending supabase/migrations/*.sql, tracked in schema_migrations
+npm run images:build # normalizes source photos into public/images/{products,editorial}
+npm run db:seed      # loads the curated demo catalog (scripts/catalog.ts); idempotent
 ```
 
 To make your account an admin, sign up through `/signup`, confirm the email, then in the Supabase SQL Editor:
@@ -69,14 +71,17 @@ update public.profiles set role = 'admin' where id = '<your-auth-uid>';
 ```
 src/
   App.tsx, main.tsx        # routes, providers, entry point
-  context/                 # AuthContext (session/role), UIContext (filters, drawers)
+  context/                 # Auth, Cart, Wishlist, Toast, UI (filters) providers
+  components/SiteLayout    # shared header/footer + animated page transitions
   hooks/                   # TanStack Query hooks — products, cart, orders, wishlist, admin mutations
   lib/                     # pure/utility modules: cart math, slugs, image URLs, Storage upload, Supabase client
   types/                   # generated-style Database type + hand-written domain aliases
   pages/                   # route components, including pages/admin/
   components/              # presentational + shared components
 scripts/
-  migrate.ts, seed.ts       # local-only: apply migrations / seed data via direct DB connection
+  catalog.ts                # single source of truth for the demo catalog
+  optimize-images.ts        # builds uniform 4:5 product images + editorial crops (sharp)
+  migrate.ts, seed.ts       # local-only: apply migrations / seed data
 supabase/
   migrations/               # schema as SQL, applied in order
 ```

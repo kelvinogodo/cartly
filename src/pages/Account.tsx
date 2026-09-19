@@ -1,15 +1,15 @@
-import Header from '../components/Header'
-import Footer from '../components/Footer'
 import { useOrders } from '../hooks/useOrders'
 import { useAuth } from '../context/AuthContext'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { formatPrice } from '../lib/format'
 
 const Account = () => {
+  useDocumentTitle('My orders')
   const { profile, user, signOut } = useAuth()
   const { data: orders, isLoading, error } = useOrders()
 
   return (
     <div>
-      <Header />
       <section className="account-page">
         <div className="account-layout">
           <div className="account-sidebar">
@@ -41,13 +41,12 @@ const Account = () => {
                     <div key={item.id}>{item.quantity} × {item.product_name}</div>
                   ))}
                 </div>
-                <div className="order-total">Total ${order.total}</div>
+                <div className="order-total">Total {formatPrice(order.total)}</div>
               </div>
             ))}
           </div>
         </div>
       </section>
-      <Footer />
     </div>
   )
 }

@@ -1,18 +1,27 @@
-import Footer from '../components/Footer'
-import Contact from '../components/Contact'
-import Header from '../components/Header'
-import Items from '../components/Items'
+import Hero from '../components/Hero'
 import CategoryTiles from '../components/CategoryTiles'
-import Categories from '../components/Categories'
+import FeaturedProducts from '../components/FeaturedProducts'
+import Collection from '../components/Collection'
+import Story from '../components/Story'
+import { useEffect } from 'react'
+import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { scrollToId, takePendingScroll } from '../lib/scroll'
+
 const Home = () => {
+  useDocumentTitle()
+  useEffect(() => {
+    const target = takePendingScroll()
+    if (target) window.setTimeout(() => scrollToId(target), 350)
+  }, [])
   return (
     <div>
-        <Header />
-        <Items />
+      <main>
+        <Hero />
         <CategoryTiles />
-        <Categories />
-        <Contact />
-        <Footer />
+        <FeaturedProducts />
+        <Collection />
+        <Story />
+      </main>
     </div>
   )
 }

@@ -1,6 +1,4 @@
 import { Link } from 'react-router-dom'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
 import { useProducts } from '../../hooks/useProducts'
 
 const AdminDashboard = () => {
@@ -8,7 +6,6 @@ const AdminDashboard = () => {
 
   return (
     <div>
-      <Header />
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
           <span className="logo">Cartly</span>
@@ -33,7 +30,6 @@ const AdminDashboard = () => {
           </Link>
         </div>
       </section>
-      <Footer />
     </div>
   )
 }

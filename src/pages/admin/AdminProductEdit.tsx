@@ -1,6 +1,4 @@
 import { Link, useParams } from 'react-router-dom'
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
 import ProductForm from './ProductForm'
 import { useProductById } from '../../hooks/useProductById'
 
@@ -10,7 +8,6 @@ const AdminProductEdit = () => {
 
   return (
     <div>
-      <Header />
       <div className="admin-header">
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
           <span className="logo">Cartly</span>
@@ -21,7 +18,6 @@ const AdminProductEdit = () => {
       {isLoading && <p style={{ textAlign: 'center', padding: '60px 0' }}>Loading…</p>}
       {error && <p style={{ textAlign: 'center', padding: '60px 0' }}>Product not found.</p>}
       {product && <ProductForm product={product} />}
-      <Footer />
     </div>
   )
 }

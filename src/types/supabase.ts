@@ -41,18 +41,24 @@ export interface Database {
           id: string;
           slug: string;
           name: string;
+          sort_order: number;
+          image_path: string | null;
           created_at: string;
         };
         Insert: {
           id?: string;
           slug: string;
           name: string;
+          sort_order?: number;
+          image_path?: string | null;
           created_at?: string;
         };
         Update: {
           id?: string;
           slug?: string;
           name?: string;
+          sort_order?: number;
+          image_path?: string | null;
           created_at?: string;
         };
         Relationships: [];

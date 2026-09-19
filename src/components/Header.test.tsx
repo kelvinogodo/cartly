@@ -3,31 +3,26 @@ import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import Header from './Header';
 import { UIProvider } from '../context/UIContext';
-import { useCart } from '../hooks/useCart';
+import { useCart, type CartHookResult } from '../hooks/useCart';
+import { useWishlist } from '../hooks/useWishlist';
 import { useAuth } from '../context/AuthContext';
 import { useCategories } from '../hooks/useCategories';
-import type { Product } from '../types/domain';
 
 vi.mock('../hooks/useCart');
+vi.mock('../hooks/useWishlist');
 vi.mock('../context/AuthContext');
 vi.mock('../hooks/useCategories');
 
-function mockProduct(id: string): Product {
+function cartValue(count: number): CartHookResult {
   return {
-    id,
-    slug: id,
-    name: id,
-    description: null,
-    price: 10,
-    stock: 1,
-    category_id: null,
-    image_path: '/images/x.png',
-    size: null,
-    color: null,
-    made_in: null,
-    is_featured: false,
-    created_at: '',
-    updated_at: '',
+    items: [],
+    count,
+    total: 0,
+    isLoading: false,
+    addItem: vi.fn(),
+    setQuantity: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn(),
   };
 }
 
@@ -43,6 +38,13 @@ function renderHeader() {
 
 beforeEach(() => {
   vi.mocked(useCategories).mockReturnValue({ data: [], isLoading: false, error: null } as unknown as ReturnType<typeof useCategories>);
+  vi.mocked(useWishlist).mockReturnValue({
+    likedIds: new Set<string>(),
+    count: 0,
+    isLoading: false,
+    isLiked: () => false,
+    toggle: vi.fn(),
+  });
   vi.mocked(useAuth).mockReturnValue({
     session: null,
     user: null,
@@ -55,41 +57,31 @@ beforeEach(() => {
   });
 });
 
-describe('Header cart badge', () => {
-  it('shows the number of distinct cart lines, not the summed quantity', () => {
-    // Regression check for the old Context bug where adding the same
-    // product twice created two separate cart rows: the badge should
-    // reflect distinct lines (2 products), and repeat-adds of the same
-    // product must increment quantity rather than growing this count.
-    vi.mocked(useCart).mockReturnValue({
-      items: [
-        { productId: 'p1', quantity: 2, product: mockProduct('p1') },
-        { productId: 'p2', quantity: 1, product: mockProduct('p2') },
-      ],
-      isLoading: false,
-      addItem: vi.fn(),
-      removeItem: vi.fn(),
-      setQuantity: vi.fn(),
-      clear: vi.fn(),
-    });
-
+describe('Header bag badge', () => {
+  it('shows the total number of units in the bag', () => {
+    vi.mocked(useCart).mockReturnValue(cartValue(3));
     renderHeader();
-
-    expect(screen.getByText('2')).toBeInTheDocument();
+    expect(screen.getByLabelText('Bag, 3 items')).toHaveTextContent('3');
   });
 
-  it('hides the badge entirely when the cart is empty', () => {
-    vi.mocked(useCart).mockReturnValue({
-      items: [],
-      isLoading: false,
-      addItem: vi.fn(),
-      removeItem: vi.fn(),
-      setQuantity: vi.fn(),
-      clear: vi.fn(),
-    });
-
+  it('shows no badge when the bag is empty', () => {
+    vi.mocked(useCart).mockReturnValue(cartValue(0));
     renderHeader();
+    expect(screen.getByLabelText('Bag, 0 items')).toHaveTextContent('');
+  });
+});
 
-    expect(screen.queryByText('0')).not.toBeInTheDocument();
+describe('Header wishlist badge', () => {
+  it('shows how many pieces are saved', () => {
+    vi.mocked(useCart).mockReturnValue(cartValue(0));
+    vi.mocked(useWishlist).mockReturnValue({
+      likedIds: new Set(['a', 'b']),
+      count: 2,
+      isLoading: false,
+      isLiked: () => true,
+      toggle: vi.fn(),
+    });
+    renderHeader();
+    expect(screen.getByLabelText('Wishlist, 2 saved')).toHaveTextContent('2');
   });
 });
