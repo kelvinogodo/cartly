@@ -11,6 +11,8 @@ import { useCategories } from '../hooks/useCategories'
 import { useWishlist } from '../hooks/useWishlist'
 import { useCart } from '../hooks/useCart'
 import { useAddToBag } from '../hooks/useAddToBag'
+import { useProductImages } from '../hooks/useProductImages'
+import { resolveSelection, unitsOfProduct } from '../lib/cart'
 import { useImageLoaded } from '../hooks/useImageLoaded'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { getProductImageUrl } from '../lib/images'
@@ -24,10 +26,29 @@ const ProductDetail = () => {
   const { items } = useCart()
   const addToBag = useAddToBag()
   const [justAdded, setJustAdded] = useState(false)
+  const [chosenSize, setChosenSize] = useState('')
+  const [chosenColor, setChosenColor] = useState('')
+  const [activeImage, setActiveImage] = useState(0)
+  const [showMissing, setShowMissing] = useState(false)
+  const { data: extraImages } = useProductImages(product?.id)
 
   useDocumentTitle(product?.name)
 
-  const src = product ? getProductImageUrl(product.image_path) : ''
+  // cover first, then the extra gallery photos
+  const gallery = useMemo(
+    () => (product ? [product.image_path, ...(extraImages ?? []).map((i) => i.image_path)] : []),
+    [product, extraImages]
+  )
+
+  // a different product means a fresh selection and gallery position
+  useEffect(() => {
+    setChosenSize('')
+    setChosenColor('')
+    setActiveImage(0)
+    setShowMissing(false)
+  }, [slug])
+
+  const src = product ? getProductImageUrl(gallery[activeImage] ?? product.image_path) : ''
   const { ref, loaded, onLoad } = useImageLoaded(src)
 
   useEffect(() => {
@@ -46,12 +67,18 @@ const ProductDetail = () => {
   if (!isLoading && (error || !product)) return <NotFound />
 
   const liked = product ? isLiked(product.id) : false
-  const inBag = product ? items.find((item) => item.productId === product.id)?.quantity ?? 0 : 0
+  const inBag = product ? unitsOfProduct(items, product.id) : 0
+  const { selection, missing } = product ? resolveSelection(product, { size: chosenSize, color: chosenColor }) : { selection: { size: '', color: '' }, missing: null }
   const soldOut = !!product && product.stock <= 0
   const lowStock = !!product && !soldOut && product.stock <= 5
 
   const onAdd = () => {
-    if (product && addToBag(product) === 'added') setJustAdded(true)
+    if (!product) return
+    if (missing) {
+      setShowMissing(true)
+      return
+    }
+    if (addToBag(product, 1, selection) === 'added') setJustAdded(true)
   }
 
   const addLabel = soldOut ? 'Sold out' : justAdded ? 'Added to bag' : 'Add to bag'
@@ -90,6 +117,21 @@ const ProductDetail = () => {
                   style={{ opacity: loaded ? 1 : 0, transition: 'opacity .5s ease' }}
                 />
               </div>
+              {gallery.length > 1 && (
+                <div className="pd-thumbs" role="group" aria-label="Product photos">
+                  {gallery.map((path, i) => (
+                    <button
+                      key={path}
+                      className={`pd-thumb ${i === activeImage ? 'is-active' : ''}`}
+                      onClick={() => setActiveImage(i)}
+                      aria-label={`Show photo ${i + 1} of ${gallery.length}`}
+                      aria-pressed={i === activeImage}
+                    >
+                      <img src={getProductImageUrl(path)} alt="" loading="lazy" />
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="pd-info">
@@ -105,17 +147,52 @@ const ProductDetail = () => {
 
               {product.description && <p className="pd-description">{product.description}</p>}
 
-              {product.color && (
+              {product.colors.length > 0 && (
                 <div>
-                  <div className="pd-attr-label">Colour</div>
-                  <div className="pd-attr-value">{product.color}</div>
+                  <div className="pd-attr-label">Colour{selection.color ? ` — ${selection.color}` : ''}</div>
+                  {product.colors.length === 1 ? (
+                    <div className="pd-attr-value">{product.colors[0]}</div>
+                  ) : (
+                    <div className="opt-group" role="radiogroup" aria-label="Colour">
+                      {product.colors.map((c) => (
+                        <button
+                          key={c}
+                          role="radio"
+                          aria-checked={chosenColor === c}
+                          className={`opt ${chosenColor === c ? 'is-active' : ''}`}
+                          onClick={() => setChosenColor(c)}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
-              {product.size && (
+              {product.sizes.length > 0 && (
                 <div>
-                  <div className="pd-attr-label">Size</div>
-                  <div className="pd-attr-value">{product.size}</div>
+                  <div className="pd-attr-label">Size{selection.size ? ` — ${selection.size}` : ''}</div>
+                  {product.sizes.length === 1 ? (
+                    <div className="pd-attr-value">{product.sizes[0]}</div>
+                  ) : (
+                    <div className="opt-group" role="radiogroup" aria-label="Size">
+                      {product.sizes.map((s) => (
+                        <button
+                          key={s}
+                          role="radio"
+                          aria-checked={chosenSize === s}
+                          className={`opt ${chosenSize === s ? 'is-active' : ''}`}
+                          onClick={() => setChosenSize(s)}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
+              )}
+              {showMissing && missing && (
+                <p className="field-error" role="alert">Please choose a {missing === 'size' ? 'size' : 'colour'} first.</p>
               )}
 
               <div className="pd-actions desktop-only">

@@ -5,6 +5,7 @@ import { useCart } from '../hooks/useCart'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { getProductImageUrl } from '../lib/images'
 import { formatPrice } from '../lib/format'
+import { describeSelection, lineKey, unitsOfProduct } from '../lib/cart'
 
 const CartPage = () => {
   useDocumentTitle('Your bag')
@@ -36,12 +37,14 @@ const CartPage = () => {
               </div>
 
               <AnimatePresence initial={false}>
-                {items.map(({ productId, product, quantity }) => {
-                  const atMax = quantity >= product.stock
+                {items.map(({ productId, product, quantity, size, color }) => {
+                  // every size of a product shares one stock pool
+                  const atMax = unitsOfProduct(items, productId) >= product.stock
+                  const selection = { size, color }
                   return (
                     <motion.div
                       className="bag-line"
-                      key={productId}
+                      key={lineKey({ productId, size, color })}
                       layout
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
@@ -53,18 +56,18 @@ const CartPage = () => {
                       </Link>
                       <div className="bag-line-info">
                         <div className="bag-line-name"><Link to={`/products/${product.slug}`}>{product.name}</Link></div>
-                        <div className="bag-line-meta">{[product.color, product.size && `Size ${product.size}`].filter(Boolean).join(' · ')}</div>
+                        <div className="bag-line-meta">{describeSelection(selection)}</div>
                         {atMax && <div className="bag-line-warn">Maximum available ({product.stock})</div>}
                       </div>
                       <div className="bag-line-qty">
                         <div className="qty-stepper">
-                          <button onClick={() => setQuantity(product, quantity - 1)} disabled={quantity <= 1} aria-label={`Decrease quantity of ${product.name}`}><FiMinus size={13} /></button>
+                          <button onClick={() => setQuantity(product, selection, quantity - 1)} disabled={quantity <= 1} aria-label={`Decrease quantity of ${product.name}`}><FiMinus size={13} /></button>
                           <span aria-live="polite">{quantity}</span>
-                          <button onClick={() => setQuantity(product, quantity + 1)} disabled={atMax} aria-label={`Increase quantity of ${product.name}`}><FiPlus size={13} /></button>
+                          <button onClick={() => setQuantity(product, selection, quantity + 1)} disabled={atMax} aria-label={`Increase quantity of ${product.name}`}><FiPlus size={13} /></button>
                         </div>
                       </div>
                       <span className="bag-line-price">{formatPrice(product.price * quantity)}</span>
-                      <button className="bag-line-remove" onClick={() => removeItem(productId)} aria-label={`Remove ${product.name}`}>
+                      <button className="bag-line-remove" onClick={() => removeItem({ productId, size, color })} aria-label={`Remove ${product.name}`}>
                         <FiX size={18} />
                       </button>
                     </motion.div>

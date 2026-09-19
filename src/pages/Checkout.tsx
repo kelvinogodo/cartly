@@ -6,6 +6,7 @@ import { useDocumentTitle } from '../hooks/useDocumentTitle'
 import { useToast } from '../context/ToastContext'
 import { getProductImageUrl } from '../lib/images'
 import { formatPrice } from '../lib/format'
+import { describeSelection, lineKey } from '../lib/cart'
 
 const Checkout = () => {
   useDocumentTitle('Checkout')
@@ -72,13 +73,13 @@ const Checkout = () => {
             <div className="bag-summary">
               <div className="bag-summary-title serif">Order summary</div>
               {items.map((item) => (
-                <div className="mini-line" key={item.productId}>
+                <div className="mini-line" key={lineKey(item)}>
                   <div className="mini-line-image">
                     <img src={getProductImageUrl(item.product.image_path)} alt="" />
                   </div>
                   <div className="mini-line-info">
                     <div className="mini-line-name">{item.product.name}</div>
-                    <div className="mini-line-meta">{[item.product.color, `Qty ${item.quantity}`].filter(Boolean).join(' · ')}</div>
+                    <div className="mini-line-meta">{[describeSelection(item), `Qty ${item.quantity}`].filter(Boolean).join(' · ')}</div>
                   </div>
                   <div className="serif" style={{ color: 'var(--accent)', fontSize: 14 }}>{formatPrice(item.product.price * item.quantity)}</div>
                 </div>

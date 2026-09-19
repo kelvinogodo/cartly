@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useCart } from './useCart';
 import { useToast } from '../context/ToastContext';
-import type { Product } from '../types/domain';
+import type { OptionSelection, Product } from '../types/domain';
 
 /** Adds to the bag and gives the shopper immediate, honest feedback about what happened. */
 export function useAddToBag() {
@@ -9,15 +9,22 @@ export function useAddToBag() {
   const toast = useToast();
 
   return useCallback(
-    (product: Product, quantity = 1) => {
-      const result = addItem(product, quantity);
+    (product: Product, quantity = 1, chosen: Partial<OptionSelection> = {}) => {
+      const result = addItem(product, quantity, chosen);
       if (result === 'added') {
         toast.show({
           id: `bag-${product.id}`,
           title: 'Added to bag',
-          description: product.name,
+          description: [product.name, chosen.size && `Size ${chosen.size}`].filter(Boolean).join(' · '),
           image: product.image_path,
           action: { label: 'View bag', to: '/cart' },
+        });
+      } else if (result === 'needs_option') {
+        toast.show({
+          id: `bag-${product.id}`,
+          title: product.sizes.length > 1 && !chosen.size ? 'Choose a size first' : 'Choose a colour first',
+          description: product.name,
+          tone: 'error',
         });
       } else if (result === 'sold_out') {
         toast.show({ id: `bag-${product.id}`, title: 'Sold out', description: product.name, tone: 'error' });

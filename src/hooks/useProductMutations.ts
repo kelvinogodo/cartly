@@ -41,11 +41,14 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
-      const { data: existing } = await supabase.from('products').select('image_path').eq('id', id).maybeSingle();
+      const [{ data: existing }, { data: gallery }] = await Promise.all([
+        supabase.from('products').select('image_path').eq('id', id).maybeSingle(),
+        supabase.from('product_images').select('image_path').eq('product_id', id),
+      ]);
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
-      // only after the row is gone, so a failed delete never loses the picture
-      await removeStoredImages([existing?.image_path]);
+      // only after the row is gone, so a failed delete never loses the pictures
+      await removeStoredImages([existing?.image_path, ...(gallery ?? []).map((row) => row.image_path)]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });

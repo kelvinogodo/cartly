@@ -26,6 +26,34 @@ export interface CatalogProduct {
   source: string;
 }
 
+const LETTER_SIZES = ['XXS', 'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL'];
+
+/**
+ * Turns the catalog's human size range into selectable options:
+ * "S – XXL" -> S…XXL, "EU 40 – 45" -> 40…45, "36 – 48" -> 36, 38 … 48 (suit sizes go in 2s),
+ * "One size" -> none (nothing to choose), anything else (e.g. "36 mm") -> that single value.
+ */
+export function expandSizes(range: string): string[] {
+  const text = range.trim();
+  if (/^one size$/i.test(text)) return [];
+  const parts = text.replace(/^EU\s+/i, '').split(/\s*[–-]\s*/);
+  if (parts.length === 2) {
+    const [from, to] = parts as [string, string];
+    const a = LETTER_SIZES.indexOf(from);
+    const b = LETTER_SIZES.indexOf(to);
+    if (a >= 0 && b >= a) return LETTER_SIZES.slice(a, b + 1);
+    const lo = Number(from);
+    const hi = Number(to);
+    if (Number.isFinite(lo) && Number.isFinite(hi) && hi > lo) {
+      const step = hi - lo > 8 ? 2 : 1;
+      const out: string[] = [];
+      for (let n = lo; n <= hi; n += step) out.push(String(n));
+      return out;
+    }
+  }
+  return [text];
+}
+
 export const categories: CatalogCategory[] = [
   { slug: 'women', name: 'Women', sortOrder: 1, editorialSource: 'pexels-ali-pazani-2681751.jpg' },
   { slug: 'men', name: 'Men', sortOrder: 2, editorialSource: 'pexels-lawrence-suzara-1566421.jpg' },

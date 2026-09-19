@@ -65,7 +65,7 @@ const AdminOrders = () => {
               </div>
               <div className="order-items-row">
                 {order.order_items.map((item) => (
-                  <div key={item.id}>{item.quantity} × {item.product_name} — {formatPrice(item.subtotal)}</div>
+                  <div key={item.id}>{item.quantity} × {item.product_name}{[item.color, item.size && `Size ${item.size}`].filter(Boolean).length > 0 && ` (${[item.color, item.size && `Size ${item.size}`].filter(Boolean).join(', ')})`} — {formatPrice(item.subtotal)}</div>
                 ))}
               </div>
               <div className="admin-order-foot">

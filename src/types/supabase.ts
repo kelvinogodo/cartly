@@ -73,8 +73,8 @@ export interface Database {
           stock: number;
           category_id: string | null;
           image_path: string;
-          size: string | null;
-          color: string | null;
+          sizes: string[];
+          colors: string[];
           made_in: string | null;
           is_featured: boolean;
           created_at: string;
@@ -89,8 +89,8 @@ export interface Database {
           stock?: number;
           category_id?: string | null;
           image_path: string;
-          size?: string | null;
-          color?: string | null;
+          sizes?: string[];
+          colors?: string[];
           made_in?: string | null;
           is_featured?: boolean;
           created_at?: string;
@@ -105,8 +105,8 @@ export interface Database {
           stock?: number;
           category_id?: string | null;
           image_path?: string;
-          size?: string | null;
-          color?: string | null;
+          sizes?: string[];
+          colors?: string[];
           made_in?: string | null;
           is_featured?: boolean;
           created_at?: string;
@@ -118,6 +118,38 @@ export interface Database {
             columns: ['category_id'];
             isOneToOne: false;
             referencedRelation: 'categories';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      product_images: {
+        Row: {
+          id: string;
+          product_id: string;
+          image_path: string;
+          sort_order: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          image_path: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          image_path?: string;
+          sort_order?: number;
+          created_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'product_images_product_id_fkey';
+            columns: ['product_id'];
+            isOneToOne: false;
+            referencedRelation: 'products';
             referencedColumns: ['id'];
           },
         ];
@@ -154,6 +186,8 @@ export interface Database {
           user_id: string;
           product_id: string;
           quantity: number;
+          size: string;
+          color: string;
           created_at: string;
           updated_at: string;
         };
@@ -162,6 +196,8 @@ export interface Database {
           user_id: string;
           product_id: string;
           quantity?: number;
+          size?: string;
+          color?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -170,6 +206,8 @@ export interface Database {
           user_id?: string;
           product_id?: string;
           quantity?: number;
+          size?: string;
+          color?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -225,6 +263,8 @@ export interface Database {
           unit_price: number;
           quantity: number;
           subtotal: number;
+          size: string | null;
+          color: string | null;
         };
         Insert: {
           id?: string;
@@ -234,6 +274,8 @@ export interface Database {
           unit_price: number;
           quantity: number;
           subtotal: number;
+          size?: string | null;
+          color?: string | null;
         };
         Update: {
           id?: string;
@@ -243,6 +285,8 @@ export interface Database {
           unit_price?: number;
           quantity?: number;
           subtotal?: number;
+          size?: string | null;
+          color?: string | null;
         };
         Relationships: [
           {
@@ -319,7 +363,7 @@ export interface Database {
           p_shipping_name: string;
           p_shipping_address: string;
           p_shipping_phone: string;
-          p_items: { product_id: string; quantity: number }[];
+          p_items: { product_id: string; quantity: number; size?: string; color?: string }[];
         };
         Returns: Database['public']['Tables']['orders']['Row'];
       };

@@ -28,7 +28,7 @@ export function useCreateOrder() {
         p_shipping_name: shipping.name,
         p_shipping_address: shipping.address,
         p_shipping_phone: shipping.phone,
-        p_items: items.map((item) => ({ product_id: item.productId, quantity: item.quantity })),
+        p_items: items.map((item) => ({ product_id: item.productId, quantity: item.quantity, size: item.size, color: item.color })),
       });
       if (error) throw new Error(error.message);
       return data;

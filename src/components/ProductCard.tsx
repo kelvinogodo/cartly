@@ -25,6 +25,8 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
   const liked = isLiked(product.id)
   const soldOut = product.stock <= 0
   const lowStock = !soldOut && product.stock <= LOW_STOCK_THRESHOLD
+  // several sizes/colours: the shopper has to choose on the product page
+  const needsChoice = product.sizes.length > 1 || product.colors.length > 1
 
   useEffect(() => {
     if (!justAdded) return
@@ -94,15 +96,22 @@ export function ProductCard({ product, index = 0 }: { product: Product; index?: 
           </motion.span>
         </button>
 
-        <button
-          className="pcard-quick"
-          disabled={soldOut}
-          onClick={onAdd}
-          aria-label={soldOut ? `${product.name} is sold out` : `Add ${product.name} to bag`}
-        >
-          {justAdded ? <FiCheck size={15} /> : <FiPlus size={15} />}
-          <span className="pcard-quick-label">{soldOut ? 'Sold out' : justAdded ? 'Added' : 'Quick add'}</span>
-        </button>
+        {needsChoice && !soldOut ? (
+          <Link className="pcard-quick" to={`/products/${product.slug}`} aria-label={`Choose options for ${product.name}`}>
+            <FiPlus size={15} />
+            <span className="pcard-quick-label">{product.sizes.length > 1 ? 'Select size' : 'Select colour'}</span>
+          </Link>
+        ) : (
+          <button
+            className="pcard-quick"
+            disabled={soldOut}
+            onClick={onAdd}
+            aria-label={soldOut ? `${product.name} is sold out` : `Add ${product.name} to bag`}
+          >
+            {justAdded ? <FiCheck size={15} /> : <FiPlus size={15} />}
+            <span className="pcard-quick-label">{soldOut ? 'Sold out' : justAdded ? 'Added' : 'Quick add'}</span>
+          </button>
+        )}
       </div>
 
       <div className="pcard-body">

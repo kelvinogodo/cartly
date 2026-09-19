@@ -13,7 +13,7 @@ vi.mock('./AuthContext', () => ({ useAuth: () => ({ user: null }) }));
 
 const dress: Product = {
   id: 'dress', slug: 'dress', name: 'Day dress', description: null, price: 200, stock: 4, category_id: null,
-  image_path: '/images/x.jpg', size: null, color: null, made_in: null, is_featured: false, created_at: '', updated_at: '',
+  image_path: '/images/x.jpg', sizes: [], colors: [], made_in: null, is_featured: false, created_at: '', updated_at: '',
 };
 
 function HeartButton() {

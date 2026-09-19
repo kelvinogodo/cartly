@@ -12,13 +12,17 @@ import {
   cartCount,
   clearGuestCart,
   computeCartTotal,
+  lineKey,
   planAdd,
+  resolveSelection,
+  sameLine,
+  unitsOfProduct,
   readGuestCart,
   writeGuestCart,
   type AddResult,
   type GuestCartLine,
 } from '../lib/cart';
-import type { CartItem, Product } from '../types/domain';
+import type { CartItem, OptionSelection, Product } from '../types/domain';
 
 export interface CartContextValue {
   items: CartItem[];
@@ -26,9 +30,10 @@ export interface CartContextValue {
   count: number;
   total: number;
   isLoading: boolean;
-  addItem: (product: Product, quantity?: number) => AddResult;
-  setQuantity: (product: Product, quantity: number) => void;
-  removeItem: (productId: string) => void;
+  /** Adds to the bag; resolves to 'needs_option' when a size/colour still has to be chosen. */
+  addItem: (product: Product, quantity?: number, chosen?: Partial<OptionSelection>) => AddResult;
+  setQuantity: (product: Product, selection: OptionSelection, quantity: number) => void;
+  removeItem: (line: { productId: string } & OptionSelection) => void;
   clear: () => void;
 }
 
@@ -47,24 +52,41 @@ const EMPTY_ITEMS: CartItem[] = [];
 async function fetchServerCart(userId: string): Promise<CartItem[]> {
   const { data, error } = await supabase
     .from('cart_items')
-    .select('product_id, quantity, product:products(*)')
+    .select('product_id, quantity, size, color, product:products(*)')
     .eq('user_id', userId)
     .order('created_at', { ascending: true });
   if (error) throw error;
-  return data.map((row) => ({ productId: row.product_id, quantity: row.quantity, product: row.product }));
+  return data.map((row) => ({
+    productId: row.product_id,
+    quantity: row.quantity,
+    size: row.size,
+    color: row.color,
+    product: row.product,
+  }));
 }
 
 // Folds a signed-out visitor's bag into their account's bag the moment they
-// sign in, summing quantity (capped at stock) where a product already exists.
+// sign in, summing quantity where the same product+size+colour already exists.
+// Stock is shared by every size of a product, so the total is capped at stock.
 async function mergeGuestIntoServer(userId: string, lines: GuestCartLine[]): Promise<void> {
-  const { data: existing } = await supabase.from('cart_items').select('product_id, quantity').eq('user_id', userId);
-  const current = new Map((existing ?? []).map((row) => [row.product_id, row.quantity]));
+  const { data: existing } = await supabase.from('cart_items').select('product_id, quantity, size, color').eq('user_id', userId);
+  const current = new Map((existing ?? []).map((row) => [lineKey({ productId: row.product_id, size: row.size, color: row.color }), row.quantity]));
+  const perProduct = new Map<string, number>();
+  for (const row of existing ?? []) perProduct.set(row.product_id, (perProduct.get(row.product_id) ?? 0) + row.quantity);
 
   for (const line of lines) {
-    const quantity = Math.min((current.get(line.productId) ?? 0) + line.quantity, Math.max(line.product.stock, 1));
+    const key = lineKey(line);
+    const room = Math.max(line.product.stock - (perProduct.get(line.productId) ?? 0), 0);
+    const add = Math.min(line.quantity, room);
+    if (add <= 0) continue;
+    perProduct.set(line.productId, (perProduct.get(line.productId) ?? 0) + add);
+    const quantity = (current.get(key) ?? 0) + add;
     const { error } = await supabase
       .from('cart_items')
-      .upsert({ user_id: userId, product_id: line.productId, quantity }, { onConflict: 'user_id,product_id' });
+      .upsert(
+        { user_id: userId, product_id: line.productId, size: line.size, color: line.color, quantity },
+        { onConflict: 'user_id,product_id,size,color' }
+      );
     if (error) console.error('Could not merge guest cart line:', error.message);
   }
 }
@@ -106,6 +128,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return guestLines.map((line) => ({
       productId: line.productId,
       quantity: line.quantity,
+      size: line.size,
+      color: line.color,
       product: freshById.get(line.productId) ?? line.product,
     }));
   }, [guestLines, fresh.data]);
@@ -120,22 +144,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const serverItems = serverQuery.data ?? EMPTY_ITEMS;
 
   const writeQuantity = useMutation({
-    mutationFn: async ({ product, quantity }: { product: Product; quantity: number }) => {
+    mutationFn: async ({ product, selection, quantity }: { product: Product; selection: OptionSelection; quantity: number }) => {
       if (!user) throw new Error('Not signed in');
       if (quantity <= 0) {
-        const { error } = await supabase.from('cart_items').delete().eq('user_id', user.id).eq('product_id', product.id);
+        const { error } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id)
+          .eq('product_id', product.id)
+          .eq('size', selection.size)
+          .eq('color', selection.color);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('cart_items')
-          .upsert({ user_id: user.id, product_id: product.id, quantity }, { onConflict: 'user_id,product_id' });
+          .upsert(
+            { user_id: user.id, product_id: product.id, size: selection.size, color: selection.color, quantity },
+            { onConflict: 'user_id,product_id,size,color' }
+          );
         if (error) throw error;
       }
     },
-    onMutate: async ({ product, quantity }) => {
+    onMutate: async ({ product, selection, quantity }) => {
       await queryClient.cancelQueries({ queryKey: cartKey });
       const previous = queryClient.getQueryData<CartItem[]>(cartKey);
-      queryClient.setQueryData<CartItem[]>(cartKey, (current = []) => applyQuantity(current, product, quantity));
+      queryClient.setQueryData<CartItem[]>(cartKey, (current = []) => applyQuantity(current, product, selection, quantity));
       return { previous };
     },
     onError: (_error, _variables, context) => {
@@ -187,42 +220,53 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   // ---- unified API ----
   const items = user ? serverItems : guestItems;
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
 
   const setQuantity = useCallback(
-    (product: Product, requested: number) => {
-      const quantity = Math.min(requested, product.stock);
+    (product: Product, selection: OptionSelection, requested: number) => {
+      // every size/colour of a product draws from the same stock pool
+      const target = { productId: product.id, ...selection };
+      const others = itemsRef.current.reduce(
+        (sum, item) => (item.productId === product.id && !sameLine(item, target) ? sum + item.quantity : sum),
+        0
+      );
+      const quantity = Math.min(requested, Math.max(product.stock - others, 0));
       if (user) {
-        writeQuantityMutate({ product, quantity });
+        writeQuantityMutate({ product, selection, quantity });
       } else {
         setGuestLines((lines) => {
-          if (quantity <= 0) return lines.filter((line) => line.productId !== product.id);
-          const exists = lines.some((line) => line.productId === product.id);
+          if (quantity <= 0) return lines.filter((line) => !sameLine(line, target));
+          const exists = lines.some((line) => sameLine(line, target));
           return exists
-            ? lines.map((line) => (line.productId === product.id ? { ...line, quantity, product } : line))
-            : [...lines, { productId: product.id, quantity, product }];
+            ? lines.map((line) => (sameLine(line, target) ? { ...line, quantity, product } : line))
+            : [...lines, { productId: product.id, quantity, product, ...selection }];
         });
       }
     },
     [user, writeQuantityMutate]
   );
 
-  const itemsRef = useRef(items);
-  itemsRef.current = items;
-
   const addItem = useCallback(
-    (product: Product, quantity = 1): AddResult => {
-      const inBag = itemsRef.current.find((item) => item.productId === product.id)?.quantity ?? 0;
+    (product: Product, quantity = 1, chosen: Partial<OptionSelection> = {}): AddResult => {
+      const { selection, missing } = resolveSelection(product, chosen);
+      if (missing) return 'needs_option';
+      const inBag = unitsOfProduct(itemsRef.current, product.id);
       const plan = planAdd(product, inBag, quantity);
-      if (plan.result === 'added') setQuantity(product, plan.nextQuantity);
+      if (plan.result === 'added') {
+        const target = { productId: product.id, ...selection };
+        const lineQty = itemsRef.current.find((item) => sameLine(item, target))?.quantity ?? 0;
+        setQuantity(product, selection, lineQty + (plan.nextQuantity - inBag));
+      }
       return plan.result;
     },
     [setQuantity]
   );
 
   const removeItem = useCallback(
-    (productId: string) => {
-      const product = itemsRef.current.find((item) => item.productId === productId)?.product;
-      if (product) setQuantity(product, 0);
+    (line: { productId: string } & OptionSelection) => {
+      const product = itemsRef.current.find((item) => sameLine(item, line))?.product;
+      if (product) setQuantity(product, { size: line.size, color: line.color }, 0);
     },
     [setQuantity]
   );

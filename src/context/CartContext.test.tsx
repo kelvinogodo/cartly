@@ -17,7 +17,7 @@ vi.mock('../hooks/useProductsByIds', () => ({
 function product(id: string, stock = 5): Product {
   return {
     id, slug: id, name: `Product ${id}`, description: null, price: 100, stock, category_id: null,
-    image_path: '/images/x.jpg', size: null, color: null, made_in: null, is_featured: false,
+    image_path: '/images/x.jpg', sizes: [], colors: [], made_in: null, is_featured: false,
     created_at: '', updated_at: '',
   };
 }

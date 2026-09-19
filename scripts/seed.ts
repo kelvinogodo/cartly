@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js';
 import ws from 'ws';
 import type { Database } from '../src/types/supabase';
 import { slugify } from '../src/lib/slug';
-import { categories, products } from './catalog';
+import { categories, expandSizes, products } from './catalog';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 config({ path: path.resolve(__dirname, '../.env.local'), quiet: true });
@@ -83,8 +83,8 @@ async function seedProducts(categoryIdBySlug: Map<string, string>) {
       stock: p.stock,
       category_id: categoryIdBySlug.get(p.category) ?? null,
       image_path: `/images/products/${slug}.jpg`,
-      size: p.size,
-      color: p.color,
+      sizes: expandSizes(p.size),
+      colors: [p.color],
       made_in: p.madeIn,
       is_featured: p.featured ?? false,
     };

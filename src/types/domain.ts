@@ -8,7 +8,15 @@ export type OrderItem = Database['public']['Tables']['order_items']['Row'];
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type WishlistItem = Database['public']['Tables']['wishlist_items']['Row'];
 
-export interface CartItem {
+export type ProductImage = Database['public']['Tables']['product_images']['Row'];
+
+/** A chosen size/colour. An empty string means "none" (the product has no such option). */
+export interface OptionSelection {
+  size: string;
+  color: string;
+}
+
+export interface CartItem extends OptionSelection {
   productId: string;
   quantity: number;
   product: Product;

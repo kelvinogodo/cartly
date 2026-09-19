@@ -38,7 +38,7 @@ const Account = () => {
                 </div>
                 <div className="order-items-row">
                   {order.order_items.map((item) => (
-                    <div key={item.id}>{item.quantity} × {item.product_name}</div>
+                    <div key={item.id}>{item.quantity} × {item.product_name}{[item.color, item.size && `Size ${item.size}`].filter(Boolean).length > 0 && ` (${[item.color, item.size && `Size ${item.size}`].filter(Boolean).join(', ')})`}</div>
                   ))}
                 </div>
                 <div className="order-total">Total {formatPrice(order.total)}</div>
