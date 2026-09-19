@@ -4,6 +4,7 @@ import { FiArrowLeft } from 'react-icons/fi'
 import { motion } from 'framer-motion'
 import { useAuth } from '../context/AuthContext'
 import { useDocumentTitle } from '../hooks/useDocumentTitle'
+import { ResendConfirmation } from '../components/ResendConfirmation'
 
 const Login = () => {
   useDocumentTitle('Sign in')
@@ -56,11 +57,12 @@ const Login = () => {
               <input id="login-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="field">
-              <label htmlFor="login-password">Password</label>
+              <label htmlFor="login-password" className="field-label-row">Password <Link to="/forgot-password" className="field-link">Forgot password?</Link></label>
               <input id="login-password" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
 
             {error && <p className="field-error" role="alert" style={{ marginTop: -6, marginBottom: 14 }}>{error}</p>}
+            {error && /not confirmed/i.test(error) && <ResendConfirmation email={email} />}
 
             <button type="submit" className="btn-primary" disabled={submitting}>
               {submitting ? 'Signing in…' : 'Sign in'}
