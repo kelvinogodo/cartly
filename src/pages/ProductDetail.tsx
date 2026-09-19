@@ -32,7 +32,7 @@ const ProductDetail = () => {
   const [showMissing, setShowMissing] = useState(false)
   const { data: extraImages } = useProductImages(product?.id)
 
-  useDocumentTitle(product?.name)
+  useDocumentTitle(product?.name, product ? (product.description ?? `${product.name} at Cartly.`).slice(0, 160) : undefined)
 
   // cover first, then the extra gallery photos
   const gallery = useMemo(

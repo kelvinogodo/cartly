@@ -4,7 +4,7 @@ import { useScrollToSection } from '../hooks/useScrollToSection'
 import { LEGAL_DOCS, type LegalDoc } from '../content/legal'
 
 const LegalPage = ({ doc }: { doc: LegalDoc }) => {
-  useDocumentTitle(doc.title)
+  useDocumentTitle(doc.title, doc.intro)
   const scrollToSection = useScrollToSection()
   return (
     <main className="legal">
