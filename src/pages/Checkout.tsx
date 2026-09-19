@@ -59,7 +59,7 @@ const Checkout = () => {
 
               <h2 className="serif" style={{ fontSize: 22, margin: '12px 0 16px' }}>Payment</h2>
               <p style={{ border: '1px solid var(--border)', background: '#fff', padding: 16, fontSize: 13, color: 'var(--text-muted)', marginBottom: 24, lineHeight: 1.6 }}>
-                This is a demo store — orders are recorded but no payment is taken.
+                This is a demo store — orders are recorded but no payment is taken. See our <Link to="/shipping" style={{ textDecoration: "underline" }}>shipping</Link>, <Link to="/returns" style={{ textDecoration: "underline" }}>returns</Link> and <Link to="/privacy" style={{ textDecoration: "underline" }}>privacy</Link> pages.
               </p>
 
               {createOrder.isError && <p className="field-error" style={{ marginBottom: 16 }}>{createOrder.error.message}</p>}

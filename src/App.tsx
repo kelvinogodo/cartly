@@ -12,6 +12,8 @@ import Wishlist from './pages/Wishlist'
 import NotFound from './pages/NotFound'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import LegalPage from './pages/LegalPage'
+import { LEGAL_DOCS } from './content/legal'
 import ForgotPassword from './pages/ForgotPassword'
 import ResetPassword from './pages/ResetPassword'
 import { AuthProvider } from './context/AuthContext'
@@ -52,6 +54,7 @@ function App() {
                         <Route element={<SiteLayout />}>
                           <Route path="/" element={<Home />} />
                           <Route path="/products/:slug" element={<ProductDetail />} />
+                          {LEGAL_DOCS.map((doc) => <Route key={doc.slug} path={`/${doc.slug}`} element={<LegalPage doc={doc} />} />)}
                           <Route path="/cart" element={<CartPage />} />
                           <Route path="/wishlist" element={<Wishlist />} />
                           <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />

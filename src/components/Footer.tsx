@@ -5,6 +5,7 @@ import { useCategories } from '../hooks/useCategories'
 import { useAuth } from '../context/AuthContext'
 import { useUIContext } from '../context/UIContext'
 import { useScrollToSection } from '../hooks/useScrollToSection'
+import { LEGAL_DOCS } from '../content/legal'
 
 const Footer = () => {
   const [email, setEmail] = useState('')
@@ -48,6 +49,7 @@ const Footer = () => {
         <div className="footer-col">
           <div className="footer-col-title">Help</div>
           <button onClick={goToContact}>Contact us</button>
+          {LEGAL_DOCS.map((d) => <Link key={d.slug} to={`/${d.slug}`}>{d.title}</Link>)}
         </div>
       </div>
 
