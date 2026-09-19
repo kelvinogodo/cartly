@@ -3,26 +3,27 @@ import { useProducts } from '../../hooks/useProducts'
 import { useDeleteProduct } from '../../hooks/useProductMutations'
 import { getProductImageUrl } from '../../lib/images'
 import { formatPrice } from '../../lib/format'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
+import { useToast } from '../../context/ToastContext'
+import AdminShell from './AdminShell'
 
 const AdminProductList = () => {
+  useDocumentTitle('Admin · Products')
+  const toast = useToast()
   const { data: products, isLoading, error } = useProducts()
   const deleteProduct = useDeleteProduct()
 
   const onDelete = (id: string, name: string) => {
     if (window.confirm(`Delete "${name}"? This can't be undone.`)) {
-      deleteProduct.mutate(id)
+      deleteProduct.mutate(id, {
+        onSuccess: () => toast.show({ title: 'Product deleted' }),
+        onError: (e) => toast.show({ title: 'Could not delete', description: e.message, tone: 'error' }),
+      })
     }
   }
 
   return (
-    <div>
-      <div className="admin-header">
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-          <span className="logo">Cartly</span>
-          <span className="admin-badge">Admin</span>
-        </div>
-      </div>
-
+    <AdminShell>
       <section className="admin-page">
         <div className="admin-toprow">
           <h1 className="serif" style={{ fontSize: 26 }}>Products</h1>
@@ -57,7 +58,7 @@ const AdminProductList = () => {
           </div>
         ))}
       </section>
-    </div>
+    </AdminShell>
   )
 }
 

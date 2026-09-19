@@ -1,36 +1,53 @@
 import { Link } from 'react-router-dom'
 import { useProducts } from '../../hooks/useProducts'
+import { useAdminOrders } from '../../hooks/useAdminOrders'
+import { useDocumentTitle } from '../../hooks/useDocumentTitle'
+import { formatPrice } from '../../lib/format'
+import AdminShell from './AdminShell'
+
+const LOW_STOCK = 5
 
 const AdminDashboard = () => {
+  useDocumentTitle('Admin')
   const { data: products } = useProducts()
+  const { data: orders } = useAdminOrders()
+
+  const pending = orders?.filter((o) => o.status === 'pending').length
+  // cancelled orders never count as revenue
+  const revenue = orders?.filter((o) => o.status !== 'cancelled').reduce((sum, o) => sum + Number(o.total), 0)
+  const lowStock = products?.filter((p) => p.stock <= LOW_STOCK).sort((a, b) => a.stock - b.stock)
 
   return (
-    <div>
-      <div className="admin-header">
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 14 }}>
-          <span className="logo">Cartly</span>
-          <span className="admin-badge">Admin</span>
-        </div>
-      </div>
-
+    <AdminShell>
       <section className="admin-page">
-        <h1 className="serif" style={{ fontSize: 26, marginBottom: 28 }}>Dashboard</h1>
+        <h1 className="serif" style={{ fontSize: 26, marginBottom: 28 }}>Overview</h1>
 
         <div className="admin-stats">
           <div className="admin-stat">
             <div className="admin-stat-label">Products</div>
             <div className="admin-stat-value serif">{products?.length ?? '—'}</div>
           </div>
+          <div className="admin-stat">
+            <div className="admin-stat-label">Orders awaiting action</div>
+            <div className="admin-stat-value serif">{pending ?? '—'}</div>
+          </div>
+          <div className="admin-stat">
+            <div className="admin-stat-label">Revenue (excl. cancelled)</div>
+            <div className="admin-stat-value serif">{revenue === undefined ? '—' : formatPrice(revenue)}</div>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, maxWidth: 420 }}>
-          <Link to="/admin/products" style={{ border: '1px solid var(--text)', padding: 28, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <span className="serif" style={{ fontSize: 18 }}>Manage products</span>
-            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Add, edit, and remove catalog listings, including image uploads.</span>
-          </Link>
-        </div>
+        <h2 className="serif" style={{ fontSize: 20, marginBottom: 14 }}>Low stock</h2>
+        {lowStock && lowStock.length === 0 && <p style={{ color: 'var(--text-muted)', fontSize: 14 }}>Everything is well stocked.</p>}
+        {lowStock?.map((p) => (
+          <div className="admin-row" key={p.id}>
+            <div className="admin-row-name">{p.name}</div>
+            <div style={{ fontSize: 13, color: p.stock === 0 ? 'var(--danger)' : 'var(--text-muted)' }}>{p.stock === 0 ? 'Sold out' : `${p.stock} left`}</div>
+            <div className="admin-row-actions"><Link to={`/admin/products/${p.id}/edit`}>Restock</Link></div>
+          </div>
+        ))}
       </section>
-    </div>
+    </AdminShell>
   )
 }
 

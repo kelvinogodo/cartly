@@ -34,7 +34,7 @@ const Account = () => {
                     <div className="order-id">Order #{order.id.slice(0, 8)}</div>
                     <div className="order-date">Placed {new Date(order.created_at).toLocaleDateString()}</div>
                   </div>
-                  <div className={`order-status ${order.status === 'fulfilled' ? 'fulfilled' : ''}`}>{order.status}</div>
+                  <div className={`order-status ${order.status}`}>{order.status}</div>
                 </div>
                 <div className="order-items-row">
                   {order.order_items.map((item) => (

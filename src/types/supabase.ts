@@ -310,6 +310,10 @@ export interface Database {
         Args: Record<string, never>;
         Returns: boolean;
       };
+      set_order_status: {
+        Args: { p_order_id: string; p_status: 'pending' | 'confirmed' | 'fulfilled' | 'cancelled' };
+        Returns: Database['public']['Tables']['orders']['Row'];
+      };
       place_order: {
         Args: {
           p_shipping_name: string;

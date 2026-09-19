@@ -735,3 +735,18 @@ img { max-width: 100%; display: block; }
 .pager-btn:hover:not(:disabled) { border-color: var(--text); }
 .pager-btn.is-active { background: var(--text); border-color: var(--text); color: var(--bg); }
 .pager-btn:disabled { opacity: .35; cursor: default; }
+
+/* Admin tabs, orders, inline inputs */
+.admin-tabs { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.admin-tab { padding: 8px 14px; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); border-bottom: 2px solid transparent; white-space: nowrap; }
+.admin-tab:hover { color: var(--text); }
+.admin-tab.is-active { color: var(--text); border-bottom-color: var(--accent); }
+.admin-order-ship { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 12px; }
+.admin-order-foot { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border); }
+.admin-order-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.admin-order-actions .btn-primary, .admin-order-actions .btn-outline { padding: 10px 18px; font-size: 12px; }
+.order-status.cancelled { background: transparent; border: 1px solid var(--border); color: var(--text-faint); text-decoration: line-through; }
+.admin-inline { flex: 1; min-width: 140px; padding: 10px 12px; border: 1px solid var(--border); background: #fff; font: inherit; font-size: 13px; color: var(--text); }
+.admin-inline:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.admin-add { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 28px; max-width: 560px; }
+.admin-row-actions button:disabled { opacity: .35; cursor: default; text-decoration: none; }

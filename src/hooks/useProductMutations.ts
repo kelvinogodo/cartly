@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../lib/supabaseClient';
+import { removeStoredImages } from '../lib/storage';
 import type { Database } from '../types/supabase';
 
 type ProductInsert = Database['public']['Tables']['products']['Insert'];
@@ -40,8 +41,11 @@ export function useDeleteProduct() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (id: string) => {
+      const { data: existing } = await supabase.from('products').select('image_path').eq('id', id).maybeSingle();
       const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
+      // only after the row is gone, so a failed delete never loses the picture
+      await removeStoredImages([existing?.image_path]);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });

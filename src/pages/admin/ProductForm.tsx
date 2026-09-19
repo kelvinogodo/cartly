@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { FiUploadCloud } from 'react-icons/fi'
 import { useCategories } from '../../hooks/useCategories'
 import { useCreateProduct, useUpdateProduct } from '../../hooks/useProductMutations'
-import { uploadProductImage } from '../../lib/storage'
+import { removeStoredImages, uploadProductImage } from '../../lib/storage'
 import { getProductImageUrl } from '../../lib/images'
 import { slugify } from '../../lib/slug'
 import type { Product } from '../../types/domain'
@@ -63,6 +63,8 @@ const ProductForm = ({ product }: { product?: Product }) => {
 
       if (isEditing) {
         await updateProduct.mutateAsync({ id: product.id, updates: payload })
+        // the replaced upload is now orphaned in Storage
+        if (finalImagePath !== imagePath) await removeStoredImages([imagePath])
       } else {
         await createProduct.mutateAsync(payload)
       }
